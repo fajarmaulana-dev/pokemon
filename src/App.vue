@@ -21,6 +21,11 @@
   color-scheme: only light;
 }
 
+@font-face {
+  font-family: pokemon;
+  src: "./assets/PocketMonk-15ze.ttf";
+}
+
 html {
   height: 100%;
   overflow: auto;
