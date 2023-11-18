@@ -13,8 +13,10 @@
   },
   "dependencies": {
     "@fontsource/poppins": "^5.0.8",
+    "@iconoir/vue": "^7.0.2",
     "axios": "^1.6.2",
     "pinia": "^2.1.7",
+    "postcss": "^8.4.31",
     "tailwindcss": "^3.3.5",
     "vee-validate": "^4.11.8",
     "vite-plugin-pages": "^0.31.0",
