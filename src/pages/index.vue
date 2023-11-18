@@ -33,17 +33,18 @@ onMounted(() => {
 <template>
     <div class="flex transition duration-500 [&>*]:h-screen [&>*]:min-w-full [&>*]:z-[1] [&>*]:overflow-x-hidden
         [&>*]:overflow-y-auto" :style="{ transform: `translateX(-${page * 100}%)` }">
-        <section class="">
+        <section>
             <PokemonFilter v-model="search" />
             <main
                 class="mt-[172px] h-[calc(100vh-228px)] xx:mt-[128px] xx:h-[calc(100vh-188px)] xs:mt-[76px] xs:h-[calc(100vh-136px)] overflow-hidden">
                 <div class="p-6 pb-12 h-full overflow-y-auto">
-                    <PokemonCard v-model="slideStates" :heart="hearts" @heart="handleFavourite" :data="pokemons"
-                        :actions="cardActions" />
+                    <PokemonCard v-model="slideStates" :heart="hearts" @heart="handleFavourite" :data="pokemons" />
                 </div>
             </main>
         </section>
-        <section class="bg-blue-500"></section>
+        <section class="bg-blue-500 h-[calc(100vh-60px)]">
+
+        </section>
         <section class="bg-green-500"></section>
         <section class="bg-yellow-500"></section>
         <section class="bg-pink-500"></section>

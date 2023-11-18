@@ -27,17 +27,22 @@ const props = defineProps({
     grab: {
         type: Boolean as PropType<boolean>,
         default: false
+    },
+    actionLength: {
+        type: Number as PropType<number>,
+        default: 0
     }
 })
 
-const { data, heart, index, loading, grab } = toRefs(props)
+const { data, heart, index, loading, grab, actionLength } = toRefs(props)
 
 const bgIcon = computed(() => ['flying', 'rock', 'ground'].includes(data.value.types[0]) ? 6 : 7)
+const imageCursor = computed(() => actionLength.value > 0 ? 'cursor-default' : grab.value ? 'cursor-grabbing' : 'cursor-grab')
 </script>
 
 <template>
     <div class="relative grid place-items-center h-32 w-36 rounded-[.95rem]"
-        :class="[`bg-${data.types[0]}-1`, grab ? 'cursor-grabbing' : 'cursor-grab']">
+        :class="[`bg-${data.types[0]}-1`, imageCursor]">
         <i :class="{ 'is-marked': heart[index].state }" @click="emit('heart')" class="absolute top-2 right-2
             w-8 h-8 grid place-items-center border-[1px] border-white/80 rounded-full bg-white/20 backdrop-blur
             cursor-pointer z-[1]" v-if="heart.length > 0">
