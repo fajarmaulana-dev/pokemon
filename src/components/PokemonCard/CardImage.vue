@@ -37,7 +37,7 @@ const props = defineProps({
 const { data, heart, index, loading, grab, actionLength } = toRefs(props)
 
 const bgIcon = computed(() => ['flying', 'rock', 'ground'].includes(data.value.types[0]) ? 6 : 7)
-const imageCursor = computed(() => actionLength.value > 0 ? 'cursor-default' : grab.value ? 'cursor-grabbing' : 'cursor-grab')
+const imageCursor = computed(() => actionLength.value == 0 ? 'cursor-default' : grab.value ? 'cursor-grabbing' : 'cursor-grab')
 </script>
 
 <template>

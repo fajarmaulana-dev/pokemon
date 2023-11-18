@@ -104,7 +104,7 @@ const endSlide = (e: any, param: { mobile?: boolean, index?: number } = { mobile
                 :style="{ transform: `translateX(-${modelValue[idx] ? 4 * Math.ceil(actions.length / 2) : 0}rem)` }">
                 <CardContent :data="pokemon" @open="emit('open', idx)" />
                 <CardImage :data="pokemon" :index="idx" :heart="heart" :loading="loadHeart[idx]" :grab="grab"
-                    @start-touch="({ e, mobile }) => startSlide(e, { mobile })"
+                    :action-length="actions.length" @start-touch="({ e, mobile }) => startSlide(e, { mobile })"
                     @end-touch="({ e, mobile }) => endSlide(e, { mobile, index: idx })" @heart="handleFavourite(idx)" />
             </article>
             <CardActions @action="({ label, index }) => emit('action', { label, index })" :actions="actions" :index="idx" />
