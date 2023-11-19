@@ -4,6 +4,7 @@ import { toRefs, ref, computed } from "@vue/reactivity";
 import CardContent from "./PokemonCard/CardContent.vue";
 import CardImage from "./PokemonCard/CardImage.vue";
 import CardActions from "./PokemonCard/CardActions.vue";
+import { InfoCircle } from "@iconoir/vue";
 import type { PropType } from "vue";
 import type { PokemonCard, PokemonCardAction } from "@/types";
 
@@ -95,6 +96,13 @@ const endSlide = (e: any, param: { mobile?: boolean, index?: number } = { mobile
 </script>
 
 <template>
+    <div v-if="actions.length > 0" class="text-sm leading-[1.2rem] xs:text-base xs:leading-[1.4rem] p-3 bg-sky-500/20 rounded-xl
+        font-medium flex items-center gap-3.5 mb-4 text-slate-800">
+        <i class="w-7">
+            <InfoCircle color="rgb(30,41,59)" width="28" height="28" stroke-width="2px" />
+        </i>
+        <span>Geser gambar pokemon pada kartu untuk membuka menu aksi</span>
+    </div>
     <div class="flex flex-wrap gap-4 xs:gap-5">
         <div v-for="pokemon, idx in data" :class="actWrapperColor" class="wrapper bg-gradient-to-b relative h-32
         w-full rounded-[1.1rem] grow basis-[23rem] shadow-[0_0_4px_1px] shadow-gray-200 transition

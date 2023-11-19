@@ -41,7 +41,7 @@ const imageCursor = computed(() => actionLength.value == 0 ? 'cursor-default' : 
 </script>
 
 <template>
-    <div class="relative grid place-items-center h-32 w-36 rounded-[.95rem]"
+    <div class="relative grid place-items-center h-32 w-32 xx:w-36 rounded-[.95rem]"
         :class="[`bg-${data.types[0]}-1`, imageCursor]">
         <i :class="{ 'is-marked': heart[index].state }" @click="emit('heart')" class="absolute top-2 right-2
             w-8 h-8 grid place-items-center border-[1px] border-white/80 rounded-full bg-white/20 backdrop-blur

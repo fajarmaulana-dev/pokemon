@@ -3,11 +3,19 @@ import { defineStore } from 'pinia';
 import type { PokemonCard } from '../types';
 
 export const useMainStore = defineStore('main', () => {
-  // const count = ref(0)
-  // const doubleCount = computed(() => count.value * 2)
-  // function increment() {
-  //   count.value++
-  // }
+  const spread = ref<Record<string, string[]>>({
+    kanto: ['chandelure'],
+    johto: ['chandelure'],
+    hoenn: ['chandelure'],
+    sinnoh: ['chandelure'],
+    unova: ['chandelure'],
+    kalos: ['chandelure'],
+    alola: ['chandelure'],
+    galar: ['chandelure'],
+    hisui: ['chandelure'],
+    paldea: ['chandelure'],
+  });
+
   const pokemons = ref<PokemonCard[]>([
     {
       id: '1',
@@ -15,9 +23,13 @@ export const useMainStore = defineStore('main', () => {
       types: ['electric', 'fighting'],
       image: 'alola-01.avif',
       gif: '',
-      height: 0,
-      weight: 0,
-      abilities: [],
+      description: '',
+      detail: {
+        ability: [],
+        weight: '',
+        height: '',
+        spread: [],
+      },
     },
     {
       id: '2',
@@ -25,9 +37,13 @@ export const useMainStore = defineStore('main', () => {
       types: ['poison', 'grass'],
       image: 'alola-01.avif',
       gif: '',
-      height: 0,
-      weight: 0,
-      abilities: [],
+      description: '',
+      detail: {
+        ability: [],
+        weight: '',
+        height: '',
+        spread: [],
+      },
     },
     {
       id: '3',
@@ -35,9 +51,13 @@ export const useMainStore = defineStore('main', () => {
       types: ['fire', 'flying'],
       image: 'alola-01.avif',
       gif: '',
-      height: 0,
-      weight: 0,
-      abilities: [],
+      description: '',
+      detail: {
+        ability: [],
+        weight: '',
+        height: '',
+        spread: [],
+      },
     },
     {
       id: '4',
@@ -45,9 +65,13 @@ export const useMainStore = defineStore('main', () => {
       types: ['water', 'bug'],
       image: 'alola-01.avif',
       gif: '',
-      height: 0,
-      weight: 0,
-      abilities: [],
+      description: '',
+      detail: {
+        ability: [],
+        weight: '',
+        height: '',
+        spread: [],
+      },
     },
     {
       id: '5',
@@ -55,9 +79,13 @@ export const useMainStore = defineStore('main', () => {
       types: ['fairy', 'ground'],
       image: 'alola-01.avif',
       gif: '',
-      height: 0,
-      weight: 0,
-      abilities: [],
+      description: '',
+      detail: {
+        ability: [],
+        weight: '',
+        height: '',
+        spread: [],
+      },
     },
     {
       id: '6',
@@ -65,9 +93,13 @@ export const useMainStore = defineStore('main', () => {
       types: ['rock', 'normal'],
       image: 'alola-01.avif',
       gif: '',
-      height: 0,
-      weight: 0,
-      abilities: [],
+      description: '',
+      detail: {
+        ability: [],
+        weight: '',
+        height: '',
+        spread: [],
+      },
     },
     {
       id: '7',
@@ -75,9 +107,13 @@ export const useMainStore = defineStore('main', () => {
       types: ['psychic', 'steel'],
       image: 'alola-01.avif',
       gif: '',
-      height: 0,
-      weight: 0,
-      abilities: [],
+      description: '',
+      detail: {
+        ability: [],
+        weight: '',
+        height: '',
+        spread: [],
+      },
     },
     {
       id: '8',
@@ -85,9 +121,13 @@ export const useMainStore = defineStore('main', () => {
       types: ['dragon', 'dark'],
       image: 'alola-01.avif',
       gif: '',
-      height: 0,
-      weight: 0,
-      abilities: [],
+      description: '',
+      detail: {
+        ability: [],
+        weight: '',
+        height: '',
+        spread: [],
+      },
     },
     {
       id: '9',
@@ -95,9 +135,13 @@ export const useMainStore = defineStore('main', () => {
       types: ['ghost', 'ice'],
       image: 'alola-01.avif',
       gif: '',
-      height: 0,
-      weight: 0,
-      abilities: [],
+      description: '',
+      detail: {
+        ability: [],
+        weight: '',
+        height: '',
+        spread: [],
+      },
     },
     {
       id: '10',
@@ -105,9 +149,13 @@ export const useMainStore = defineStore('main', () => {
       types: ['electric', 'fighting'],
       image: 'alola-01.avif',
       gif: '',
-      height: 0,
-      weight: 0,
-      abilities: [],
+      description: '',
+      detail: {
+        ability: [],
+        weight: '',
+        height: '',
+        spread: [],
+      },
     },
     {
       id: '11',
@@ -115,9 +163,13 @@ export const useMainStore = defineStore('main', () => {
       types: ['electric', 'fighting'],
       image: 'alola-01.avif',
       gif: '',
-      height: 0,
-      weight: 0,
-      abilities: [],
+      description: '',
+      detail: {
+        ability: [],
+        weight: '',
+        height: '',
+        spread: [],
+      },
     },
     {
       id: '12',
@@ -125,9 +177,13 @@ export const useMainStore = defineStore('main', () => {
       types: ['electric', 'fighting'],
       image: 'alola-01.avif',
       gif: '',
-      height: 0,
-      weight: 0,
-      abilities: [],
+      description: '',
+      detail: {
+        ability: [],
+        weight: '',
+        height: '',
+        spread: [],
+      },
     },
     {
       id: '13',
@@ -135,9 +191,13 @@ export const useMainStore = defineStore('main', () => {
       types: ['electric', 'fighting'],
       image: 'alola-01.avif',
       gif: '',
-      height: 0,
-      weight: 0,
-      abilities: [],
+      description: '',
+      detail: {
+        ability: [],
+        weight: '',
+        height: '',
+        spread: [],
+      },
     },
     {
       id: '14',
@@ -145,9 +205,13 @@ export const useMainStore = defineStore('main', () => {
       types: ['electric', 'fighting'],
       image: 'alola-01.avif',
       gif: '',
-      height: 0,
-      weight: 0,
-      abilities: [],
+      description: '',
+      detail: {
+        ability: [],
+        weight: '',
+        height: '',
+        spread: [],
+      },
     },
     {
       id: '15',
@@ -155,9 +219,13 @@ export const useMainStore = defineStore('main', () => {
       types: ['electric', 'fighting'],
       image: 'alola-01.avif',
       gif: '',
-      height: 0,
-      weight: 0,
-      abilities: [],
+      description: '',
+      detail: {
+        ability: [],
+        weight: '',
+        height: '',
+        spread: [],
+      },
     },
   ]);
 
@@ -179,7 +247,48 @@ export const useMainStore = defineStore('main', () => {
     { id: '15', state: false },
   ]);
 
+  const pokemon = ref({
+    id: '1',
+    name: 'Bulbasaur',
+    types: ['grass', 'poison'],
+    description:
+      'Lorem ipsum dolor, sit amet consectetur adipisicing elit. Id, recusandae deleniti natus quod tempore officiis odio. Vel quisquam quas aliquam voluptatum reiciendis quaerat cumque? Aut voluptates minima repellendus alias ea?',
+    detail: {
+      weight: 6.9,
+      height: 0.7,
+      spread: ['Kanto', 'Johto'],
+      ability: ['Overgrow', 'Poison'],
+    },
+    gif: 'alola-01.avif',
+    femalePossibility: 0.2,
+    weakness: ['electric', 'psychic', 'flying', 'fighting'],
+    evolution: [
+      {
+        id: '1',
+        image: 'alola-01.avif',
+        name: 'Bulbasaur',
+        minLevel: 0,
+        types: ['grass', 'poison'],
+      },
+      {
+        id: '2',
+        image: 'alola-01.avif',
+        name: 'Ivysaur',
+        minLevel: 16,
+        types: ['grass', 'poison'],
+      },
+      {
+        id: '3',
+        image: 'alola-01.avif',
+        name: 'Venusaur',
+        minLevel: 36,
+        types: ['grass', 'poison'],
+      },
+    ],
+    favourite: false,
+  });
+
   const page = ref(0);
 
-  return { pokemons, favourite, page };
+  return { spread, pokemons, pokemon, favourite, page };
 });

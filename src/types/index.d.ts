@@ -4,10 +4,14 @@ interface Pokemon {
   image: string;
   gif: string;
   types: string[];
-  evolution: string[];
-  abilities: string[];
-  height: number;
-  weight: number;
+  evolution: { id: string; image: string; name: string; minLevel: number; types: string[] }[];
+  description: string;
+  detail: {
+    ability: string[];
+    weight: string;
+    height: string;
+    spread: string[];
+  };
   femalePossibility: number;
   weakness: string[];
 }

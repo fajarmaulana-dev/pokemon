@@ -64,7 +64,7 @@ footer * {
     border: 4px solid rgba(255, 255, 255, 0.65);
     transition: .4s;
     transform: translateY(-24px);
-    box-shadow: 0 0 10px 1px #e5e7eb;
+    box-shadow: 0 0 4px 1px #dbdcdd;
 }
 
 .is-middle:deep(svg) {
