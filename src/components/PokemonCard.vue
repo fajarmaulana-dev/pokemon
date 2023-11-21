@@ -1,12 +1,14 @@
 <script setup lang="ts">
 import { slider } from "."
 import { toRefs, ref, computed } from "@vue/reactivity";
+import { watch } from "@vue/runtime-core";
 import CardContent from "./PokemonCard/CardContent.vue";
 import CardImage from "./PokemonCard/CardImage.vue";
 import CardActions from "./PokemonCard/CardActions.vue";
 import { InfoCircle } from "@iconoir/vue";
+import Spinner from "./Spinner.vue";
 import type { PropType } from "vue";
-import type { PokemonCard, PokemonCardAction } from "@/types";
+import type { PokemonCard, PokemonCardAction, Favourite } from "@/types";
 
 // use heart emit to do an action when click favourite button
 // just don't add the heart prop to the child if you want to hide the favourite button
@@ -32,16 +34,22 @@ import type { PokemonCard, PokemonCardAction } from "@/types";
     then fill the load attribute with false value as many as the length of data
 */
 
-// use modelValue to get access for open the actions menu from child
+// use slide to get access for open the actions menu from child
 
-const emit = defineEmits(['open', 'heart', 'update:modelValue', 'action'])
+// use loadmore to perform loading effect when fetch more data
+
+// catched: if true, it's mean that the pokemon has been catched
+
+// confirm: to receive confirmation data of removed item from favourite
+
+const emit = defineEmits(['open', 'heart', 'update:slide', 'action', 'update:confirm', 'confirm'])
 const props = defineProps({
-    modelValue: {
+    slide: {
         type: Array as PropType<boolean[]>,
         default: []
     },
     heart: {
-        type: Array as PropType<{ id: string, state: boolean }[]>,
+        type: Array as PropType<Favourite[]>,
         default: []
     },
     data: {
@@ -52,15 +60,41 @@ const props = defineProps({
         type: Array as PropType<PokemonCardAction[]>,
         default: []
     },
+    loadmore: {
+        type: Boolean as PropType<boolean>,
+        default: false
+    },
+    catched: {
+        type: Boolean as PropType<boolean>,
+        default: false
+    },
+    confirm: {
+        type: Object as PropType<{ state: boolean, index: number }>,
+        default: { state: false, index: 0 }
+    },
 })
 
-const { modelValue, heart, data, actions } = toRefs(props)
+const { slide, heart, data, actions, loadmore, catched, confirm } = toRefs(props)
 
 const loadHeart = ref(Array(data.value.length).fill(false))
+const openload = ref(Array(data.value.length).fill(false))
+
 const handleFavourite = (index: number) => {
     loadHeart.value[index] = true
     emit('heart', { index, endload: () => loadHeart.value[index] = false })
 }
+
+const handleOpen = (index: number) => {
+    openload.value[index] = true
+    emit('open', { index, endload: () => openload.value[index] = false })
+}
+
+watch(confirm, () => {
+    if (confirm.value.state) {
+        handleFavourite(confirm.value.index)
+        emit('update:confirm', { state: false, index: 0 })
+    }
+}, { deep: true })
 
 const actWrapperColor = computed(() => {
     if (actions.value.length > 0) {
@@ -69,9 +103,9 @@ const actWrapperColor = computed(() => {
 })
 
 const updateModel = (idx: number, to: boolean) => {
-    let model = modelValue.value;
+    let model = slide.value;
     model[idx] = to
-    emit('update:modelValue', model)
+    emit('update:slide', model)
 }
 
 const xStart = ref(0)
@@ -109,14 +143,20 @@ const endSlide = (e: any, param: { mobile?: boolean, index?: number } = { mobile
         duration-[.4s] bg-slate-100">
             <article class="flex z-[1] relative rounded-2xl transition duration-500 select-none"
                 :class="`bg-${pokemon.types[0]}-0`"
-                :style="{ transform: `translateX(-${modelValue[idx] ? 4 * Math.ceil(actions.length / 2) : 0}rem)` }">
-                <CardContent :data="pokemon" @open="emit('open', idx)" />
+                :style="{ transform: `translateX(-${slide[idx] ? 4 * Math.ceil(actions.length / 2) : 0}rem)` }">
+                <CardContent :data="pokemon" @open="handleOpen(idx)" :openload="openload[idx]" />
                 <CardImage :data="pokemon" :index="idx" :heart="heart" :loading="loadHeart[idx]" :grab="grab"
-                    :action-length="actions.length" @start-touch="({ e, mobile }) => startSlide(e, { mobile })"
-                    @end-touch="({ e, mobile }) => endSlide(e, { mobile, index: idx })" @heart="handleFavourite(idx)" />
+                    :catched="catched" :action-length="actions.length"
+                    @heart="heart[idx].state ? emit('confirm', { index: idx }) : handleFavourite(idx)"
+                    @start-touch="({ e, mobile }) => startSlide(e, { mobile })"
+                    @end-touch="({ e, mobile }) => endSlide(e, { mobile, index: idx })" />
             </article>
-            <CardActions @action="({ label, index }) => emit('action', { label, index })" :actions="actions" :index="idx" />
+            <CardActions @action="({ label, index }) => emit('action', { label, index, id: pokemon.id })" :actions="actions"
+                :index="idx" />
         </div>
+    </div>
+    <div v-if="loadmore" class="h-12 w-full grid place-items-center mt-4">
+        <Spinner is="jump-dots" fill="fill-fill-1" :width="48" />
     </div>
 </template>
 

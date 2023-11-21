@@ -2,7 +2,12 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: ['./index.html', './src/**/*.{vue,js,ts,jsx,tsx}'],
-  safelist: [{ pattern: /(bg-+)|(to-+)|(from-+)/, variants: ['hover', 'active'] }],
+  safelist: [
+    {
+      pattern: /(bg|to|from)-+/,
+      variants: ['hover', 'active', 'first', 'hover:first', 'active:first'],
+    },
+  ],
   theme: {
     extend: {
       colors: {

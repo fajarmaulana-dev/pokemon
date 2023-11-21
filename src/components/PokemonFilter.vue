@@ -4,20 +4,21 @@ import { onMounted } from '@vue/runtime-core';
 import { NavArrowDown, Search, ArrowLeft } from '@iconoir/vue';
 import type { PropType } from 'vue';
 import TextBox from './TextBox.vue';
+import Spinner from './Spinner.vue';
 
-const emit = defineEmits(['openTypes', 'openSorter', 'update:text', 'back'])
+const emit = defineEmits(['update:text', 'back', 'openFilter'])
 const props = defineProps({
     text: {
         type: String as PropType<string>,
         default: ''
     },
-    typeLabel: {
-        type: String as PropType<string>,
-        default: ''
+    label: {
+        type: Object as PropType<Record<string, string>>,
+        default: { type: '', sort: 'Nomor 1 - N' }
     },
-    sortLabel: {
-        type: String as PropType<string>,
-        default: 'Nomor 1 - N'
+    load: {
+        type: Object as PropType<Record<string, boolean>>,
+        default: { type: false, sort: false }
     },
     name: {
         type: String as PropType<string>,
@@ -26,10 +27,10 @@ const props = defineProps({
     pageName: {
         type: Object as PropType<{ text: string, back?: boolean }>,
         default: { text: '', back: false }
-    }
+    },
 })
 
-const { text, typeLabel, sortLabel, name, pageName } = toRefs(props)
+const { text, name, pageName, label, load } = toRefs(props)
 
 const screenWidth = ref(window.innerWidth)
 onMounted(() => {
@@ -42,9 +43,10 @@ const fullPlaceholder = computed(() => {
     const searchIsActive = document.activeElement?.id == name.value
     return screenWidth.value < 360 || screenWidth.value >= 640 || searchIsActive
 })
+
 const typeSelected = computed(() => {
-    if (typeLabel.value == '') return 'first:bg-slate-300/80 hover:first:bg-slate-300/90 active:first:bg-slate-300'
-    else return `first:bg-${typeLabel.value}-1/80 hover:first:bg-${typeLabel.value}-1/90 active:first:bg-${typeLabel.value}-1`
+    if (label.value.type == '') return 'first:bg-slate-300/80 hover:first:bg-slate-300/90 active:first:bg-slate-300'
+    else return `first:bg-${label.value.type}-1/50 hover:first:bg-${label.value.type}-1/60 active:first:bg-${label.value.type}-1/70`
 })
 </script>
 
@@ -69,13 +71,14 @@ const typeSelected = computed(() => {
             </div>
             <div
                 class="flex items-center justify-center pb-4 pt-2 xs:justify-end flex-col xx:flex-row gap-x-4 gap-y-2 w-full">
-                <div v-for="i in 2" @click="i == 2 ? emit('openTypes') : emit('openSorter')" class="last:bg-slate-300/80
+                <div v-for="filter in ['type', 'sort']" @click="emit('openFilter', filter)" class="last:bg-slate-300/80
                 hover:last:bg-slate-300/90 active:last:bg-slate-300 flex items-center justify-between transition duration-300
                     cursor-pointer h-[40px] rounded-full w-full xs:w-fit" :class="typeSelected">
-                    <span class="font-semibold text-slate-800 w-full xs:w-[110px] text-center xs:text-right pl-5 xs:pl-0
-                    whitespace-nowrap overflow-hidden text-ellipsis">
-                        {{ i == 1 ? typeLabel == '' ? 'Semua Tipe' : typeLabel : sortLabel }}</span>
-                    <i class="pr-3 pl-2">
+                    <span class="font-semibold text-slate-800 w-full xs:w-[120px] text-center pl-5
+                    whitespace-nowrap overflow-hidden text-ellipsis capitalize">
+                        {{ filter == 'type' ? label.type == '' ? 'semua tipe' : label.type : label.sort }}</span>
+                    <Spinner v-if="load[filter]" class="pr-3 pl-2" is="lazy-ring" :width="20" stroke="stroke-slate-800" />
+                    <i v-else class="pr-3 pl-2">
                         <NavArrowDown color="rgb(30,41,59)" height="20" width="20" stroke-width="3" />
                     </i>
                 </div>

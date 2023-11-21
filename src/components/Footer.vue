@@ -8,15 +8,19 @@ const store = useMainStore()
 const { page } = storeToRefs(store)
 
 const menus = [
-    { name: 'Beranda', icon: HomeSimpleDoor },
-    { name: 'Wilayah', icon: MapPin },
-    { name: 'PokeDex', icon: Pokeball },
-    { name: 'Favorit', icon: Heart },
-    { name: 'Profil', icon: ProfileCircle },
+    { name: 'beranda', icon: HomeSimpleDoor },
+    { name: 'wilayah', icon: MapPin },
+    { name: 'pokeDex', icon: Pokeball },
+    { name: 'favorit', icon: Heart },
+    { name: 'profil', icon: ProfileCircle },
 ]
 
-const handleMenuClick = (idx: number) => idx == 2 ? emit('openMine') : store.$patch({ page: idx < 2 ? idx : idx - 1 })
-const activeMenu = (idx: number) => idx == 2 ? false : idx < 2 ? page.value == idx : page.value == idx - 1
+const handleMenuClick = (idx: number) => {
+    const index = idx < 2 ? idx : idx - 1;
+    if (idx == 2) emit('openMine');
+    else store.$patch({ page: { name: menus[idx].name, index } })
+}
+const activeMenu = (idx: number) => idx == 2 ? false : idx < 2 ? page.value.index == idx : page.value.index == idx - 1
 </script>
 
 <template>
@@ -27,8 +31,8 @@ const activeMenu = (idx: number) => idx == 2 ? false : idx < 2 ? page.value == i
             <i :class="{ 'is-middle': idx == 2 }" class="translate-y-1">
                 <component :is="menu.icon" :color="idx == 2 ? '#FFFFFF' : 'rgba(100,116,139,0.9)'"></component>
             </i>
-            <span class="text-fill-1"
-                :class="idx == 2 ? '-translate-y-[1.325rem] xx:-translate-y-[1.4rem] text-[11px] xx:text-[13px] font-bold' : 'opacity-0 -translate-y-1 text-[9px] xx:text-[11px] font-semibold'">
+            <span :class="idx == 2 ? '-translate-y-[1.325rem] xx:-translate-y-[1.4rem] text-[11px] xx:text-[13px] font-bold'
+                : 'opacity-0 -translate-y-1 text-[9px] xx:text-[11px] font-semibold'" class="text-fill-1 capitalize">
                 {{ menu.name }}</span>
         </div>
     </footer>

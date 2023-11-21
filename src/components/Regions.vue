@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { getAssets } from ".";
-import { toRefs } from "@vue/reactivity";
+import { toRefs, ref } from "@vue/reactivity";
 import type { PropType } from "vue";
+import Spinner from "./Spinner.vue";
 
 const emit = defineEmits(['open'])
 const props = defineProps({
@@ -12,18 +13,27 @@ const props = defineProps({
 })
 
 const { data } = toRefs(props)
+
+const loading = ref(Array(data.value.length).fill(false))
+const openRegion = (index: number, name: string) => {
+    loading.value[index] = true;
+    emit('open', { name, endload: () => loading.value[index] = false })
+}
 </script>
 
 <template>
     <div class="flex flex-wrap gap-4 xs:gap-5">
-        <div v-for="item, idx in data" @click="emit('open', item)" class="h-32 w-full rounded-[1.1rem] overflow-hidden grow
+        <div v-for="item, idx in data" @click="openRegion(idx, item)" class="h-32 w-full rounded-[1.1rem] overflow-hidden grow
         basis-[23rem] shadow-[0_0_6px_2px] shadow-gray-200 transition duration-[.4s] group cursor-pointer relative">
             <img :src="getAssets(`${item}.avif`)" height="32" width="368" alt="region background"
                 class="object-cover object-center group-hover:scale-[1.05] w-full h-full transition duration-500">
             <div class="absolute inset-0 bg-gradient-to-r from-black/80 to-black/20"></div>
             <div class="absolute inset-0 flex items-center justify-between px-6 py-4 gap-6">
                 <div class="text-white [&>*]:whitespace-nowrap">
-                    <h3 class="text-lg xx:text-xl font-bold capitalize">{{ item }}</h3>
+                    <div class="flex items-center gap-2">
+                        <h3 class="text-lg xx:text-xl font-bold capitalize">{{ item }}</h3>
+                        <Spinner v-if="loading[idx]" is="lazy-ring" :width="16" stroke="stroke-white" />
+                    </div>
                     <span class="text-sm xx:text-base">Generasi ke-{{ idx + 1 }}</span>
                 </div>
                 <div class="flex flex-wrap items-center justify-end w-48">
@@ -34,5 +44,3 @@ const { data } = toRefs(props)
         </div>
     </div>
 </template>
-
-<style scoped></style>

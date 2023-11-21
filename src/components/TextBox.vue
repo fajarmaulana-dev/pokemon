@@ -46,9 +46,11 @@ const props = defineProps({
 const { modelValue, id, name, placeholder, forPassword, prependIcon, appendIcon, disabled, invalid, readonly } = toRefs(props)
 const onDisabled = computed(() => disabled.value ? 'bg-slate-300' : 'bg-white')
 const onInvalid = computed(() => {
-    if (invalid.value) return 'border-rose-500/80 hover:border-rose-500/90 focus:border-rose-600/90'
+    if (invalid.value) return 'border-fill-1/80 hover:border-fill-1/90 focus:border-fill-1'
     else return 'border-slate-500/80 hover:border-slate-500/90 focus:border-slate-600/90'
 })
+
+
 </script>
 
 <template>
