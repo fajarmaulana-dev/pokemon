@@ -3,7 +3,7 @@ import { HomeSimpleDoor, MapPin, Pokeball, Heart, ProfileCircle } from '@iconoir
 import { useMainStore } from "@/stores"
 import { storeToRefs } from 'pinia';
 
-const emit = defineEmits(['openMine'])
+const emit = defineEmits(['pokedex'])
 const store = useMainStore()
 const { page } = storeToRefs(store)
 
@@ -17,7 +17,7 @@ const menus = [
 
 const handleMenuClick = (idx: number) => {
     const index = idx < 2 ? idx : idx - 1;
-    if (idx == 2) emit('openMine');
+    if (idx == 2) emit('pokedex');
     else store.$patch({ page: { name: menus[idx].name, index } })
 }
 const activeMenu = (idx: number) => idx == 2 ? false : idx < 2 ? page.value.index == idx : page.value.index == idx - 1

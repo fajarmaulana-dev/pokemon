@@ -4,14 +4,8 @@
     <meta charset="UTF-8" />
     <link rel="icon" href="/favicon.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Vite App</title>
+    <title>PokeDex</title>
     <style>
-      @font-face {
-        font-family: pokemon;
-        src: url('/src/assets/PocketMonk-15ze.ttf');
-        font-display: block;
-      }
-
       #splash {
         width: calc(100vw - 1rem);
         min-height: calc(100vh - 1rem);
@@ -19,19 +13,18 @@
         justify-content: center;
         align-items: center;
         background-color: #ffffff;
-        font-family: pokemon;
-        font-size: calc(3rem + 5vw);
-        color: #cd3131;
       }
 
-      #splash > span {
-        font-family: pokemon;
-        color: #ff9d55;
+      #splash > img {
+        width: 70vw;
+        max-width: 500px;
       }
     </style>
   </head>
   <body>
-    <div id="splash"><span>PoKé</span>DeX</div>
+    <div id="splash">
+      <img src="/src/assets/logo.svg" width="500" height="184" alt="logo" />
+    </div>
     <div id="app"></div>
     <script type="module" src="/src/main.ts"></script>
   </body>

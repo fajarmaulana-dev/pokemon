@@ -5,7 +5,7 @@ import type { PropType } from 'vue';
 import type { Pokemon } from '../../types';
 import { imageSource, getAssets } from "..";
 
-const emit = defineEmits(['update:modelValue'])
+const emit = defineEmits(['update:modelValue', 'catch'])
 const props = defineProps({
     data: {
         type: Object as PropType<Pokemon>,
@@ -51,7 +51,8 @@ onMounted(() => {
     <div class="absolute top-[calc(1rem+1vw)] h-full w-full flex justify-center">
         <img :src="getAssets(`${data.types[0]}.avif`)" height="260" alt="pokemon background">
     </div>
-    <div ref="sideImage" class="relative h-full w-full flex justify-center">
+    <div ref="sideImage" @click="emit('catch')" class="relative h-full w-full flex justify-center hover:scale-110 active:scale-90
+        transition duration-500 cursor-pointer">
         <img :src="imageSource(data.gif)" width="240" height="240" class=" w-[calc(140px+20vw)] absolute bottom-[5vw]"
             alt="pokemon animation">
     </div>

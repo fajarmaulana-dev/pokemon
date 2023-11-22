@@ -1,17 +1,14 @@
 import type { Favourite, Images, PokemonCard, Filter } from '@/types';
+import get from '../api';
 
-const getMoreImage = (ids: string[]): Images[] => [
-  { id: '0011', image: 'galar-01.avif' },
-  { id: '0012', image: 'galar-02.avif' },
-  { id: '0013', image: 'galar-03.avif' },
-  { id: '0014', image: 'galar-01.avif' },
-  { id: '0015', image: 'galar-02.avif' },
-  { id: '0016', image: 'galar-03.avif' },
-  { id: '0017', image: 'galar-01.avif' },
-  { id: '0018', image: 'galar-02.avif' },
-  { id: '0019', image: 'galar-03.avif' },
-  { id: '0020', image: 'galar-01.avif' },
-];
+const getMoreImage = async (ids: string[]) => {
+  const images: Images[] = [];
+  ids.forEach(async (i) => {
+    const detail = await get('/pokemon/' + Number(i));
+    images.push({ id: i, image: detail.sprites.front_default });
+  });
+  return images;
+};
 
 const doFilter = async (data: {
   filter: Filter;
@@ -56,7 +53,8 @@ const doFilter = async (data: {
       noImage = noImage.slice(0, 20);
       dataToShow = dataToShow.filter((d) => d.image !== '' || noImage.includes(d.id));
     }
-    const retrievedImage = getMoreImage(noImage);
+    const retrievedImage = await getMoreImage(noImage);
+    console.log(retrievedImage);
     dataToShow.forEach((d, idx) => {
       retrievedImage.forEach((image) => {
         if (d.id == image.id) dataToShow[idx].image = image.image;
@@ -80,4 +78,73 @@ const doHeart = (data: { toHandle: Favourite[]; index: number; all: Favourite[] 
   });
 };
 
-export { doFilter, doHeart };
+// init data on first mounted
+type ShortResult = { name: string; url: string };
+
+const initData = async (regions: string[], types: string[]) => {
+  const idGetter = (url: string) => url.split('/').slice(-2, -1)[0];
+
+  let spread: Record<string, string[]> = {};
+  let err_network = false;
+  try {
+    spread = Object.fromEntries(regions.map((r: string) => [r, []]));
+    regions.forEach(async (name, i) => {
+      const getPokedex = await get(`/region/${i + 1}`);
+      let inRegion: string[] = [];
+      const updateNames: string[] = getPokedex.pokedexes.map((data: ShortResult) => data.name);
+      const merge = async (index: number) => {
+        const getPokemon = await get('/pokedex/' + idGetter(getPokedex.pokedexes[index].url));
+        getPokemon.pokemon_entries.forEach((data: { pokemon_species: ShortResult }) => {
+          if (!inRegion.includes(data.pokemon_species.name)) {
+            inRegion.push(data.pokemon_species.name);
+          }
+        });
+      };
+      if (updateNames.some((name) => name.startsWith('updated') || name.startsWith('extended'))) {
+        getPokedex.pokedexes.forEach(async (p: ShortResult, idx: number) => {
+          if (p.name.startsWith('updated') || p.name.startsWith('extended')) await merge(idx);
+        });
+      } else {
+        getPokedex.pokedexes.forEach(async (p: ShortResult, idx: number) => await merge(idx));
+      }
+      spread[name] = inRegion;
+    });
+  } catch (error) {
+    err_network = true;
+  }
+
+  const pokemons: PokemonCard[] = [];
+  try {
+    const get_pokemon = await get('/pokemon?limit=1300');
+    get_pokemon.results.forEach(async (data: ShortResult) => {
+      const id = idGetter(data.url);
+      const detail = await get('/pokemon/' + data.name);
+      const image = detail.sprites.front_default;
+      const poketypes = detail.types.map((d: Record<string, any>) => d.type.name);
+
+      const spreads: string[] = [];
+      Object.keys(spread).forEach((s) => {
+        if (spread[s].includes(data.name)) spreads.push(s);
+      });
+
+      let retrieved_data = {
+        id: id.length < 4 ? '0'.repeat(4 - id.length) + id : id,
+        name: data.name,
+        image: '',
+        types: poketypes,
+        spread: spreads,
+      };
+
+      if (image && poketypes.every((p: string) => types.includes(p))) {
+        if (pokemons.length < 20) retrieved_data.image = image;
+        pokemons.push(retrieved_data);
+      }
+    });
+  } catch (error) {
+    err_network = true;
+  }
+
+  return { data: pokemons, error: err_network };
+};
+
+export { doFilter, doHeart, initData };

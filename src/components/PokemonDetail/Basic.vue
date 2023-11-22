@@ -42,6 +42,11 @@ const transformedGender = computed((): Record<string, { value: number, icon: (pr
         male: { value: 100 - (data.value.femalePossibility * 100), icon: Male }
     }
 })
+
+const infoText = computed(() => {
+    if (catched.value.state) return `Pokemon ini telah berhasil ditangkap pada ${catched.value.date}`;
+    else return 'Tekan pada gambar pokemon untuk menangkapnya!'
+})
 </script>
 
 <template>
@@ -51,7 +56,7 @@ const transformedGender = computed((): Record<string, { value: number, icon: (pr
             <i class="w-7">
                 <InfoCircle color="rgb(30,41,59)" width="28" height="28" stroke-width="2px" />
             </i>
-            <span>Pokemon ini telah berhasil ditangkap pada {{ catched.date }}</span>
+            <span>{{ infoText }}</span>
         </div>
         <h1 class="text-xl font-bold text-slate-800 capitalize">{{ data.name }}</h1>
         <span class="font-medium text-slate-800">Terindeks ke-{{ data.id }}</span>

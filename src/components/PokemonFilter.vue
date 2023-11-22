@@ -2,7 +2,7 @@
 import { toRefs, ref, computed } from '@vue/reactivity';
 import { onMounted } from '@vue/runtime-core';
 import { NavArrowDown, Search, ArrowLeft } from '@iconoir/vue';
-import type { PropType } from 'vue';
+import type { PropType, SVGAttributes } from 'vue';
 import TextBox from './TextBox.vue';
 import Spinner from './Spinner.vue';
 
@@ -25,8 +25,8 @@ const props = defineProps({
         default: ''
     },
     pageName: {
-        type: Object as PropType<{ text: string, back?: boolean }>,
-        default: { text: '', back: false }
+        type: Object as PropType<{ text: string, back?: boolean, icon: (props: SVGAttributes) => any }>,
+        default: { text: '', back: false, icon: ArrowLeft }
     },
 })
 
@@ -56,7 +56,7 @@ const typeSelected = computed(() => {
         <div class="px-4 pt-2 flex items-center translate-y-1">
             <i v-if="pageName.back" @click="emit('back')" class="w-7 h-7 -translate-x-1 rounded-full grid place-items-center cursor-pointer
                 bg-fill-0/0 hover:bg-fill-0/30 active:bg-fill-0/50 transition duration-[.4s]">
-                <ArrowLeft color="rgb(30,41,59)" height="15" width="15" stroke-width="4" />
+                <component :is="pageName.icon" color="rgb(30,41,59)" height="15" width="15" stroke-width="4"></component>
             </i>
             <h1 v-if="pageName.text !== ''" class="text-lg font-bold text-slate-800 capitalize">{{ pageName.text }}
             </h1>

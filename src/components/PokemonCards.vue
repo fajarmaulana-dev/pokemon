@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import type { PokemonCard, PokemonCardAction, Favourite } from "@/types";
-import type { PropType } from "vue";
+import type { PropType, SVGAttributes } from "vue";
 import PokeCard from "./PokemonCard.vue"
 import PokemonFilter from "./PokemonFilter.vue";
 import { toRefs, computed } from "@vue/reactivity";
+import { ArrowLeft } from "@iconoir/vue";
 
 const emit = defineEmits(['openCard', 'heart', 'update:slide', 'action', 'openFilter', 'update:text', 'back', 'update:onBottom', 'update:loadmore', 'confirm', 'update:confirm'])
 const props = defineProps({
@@ -28,8 +29,8 @@ const props = defineProps({
         default: false
     },
     catched: {
-        type: Boolean as PropType<boolean>,
-        default: false
+        type: Array as PropType<string[]>,
+        default: []
     },
     confirm: {
         type: Object as PropType<{ state: boolean, index: number }>,
@@ -52,8 +53,8 @@ const props = defineProps({
         default: ''
     },
     pageName: {
-        type: Object as PropType<{ text: string, back?: boolean }>,
-        default: { text: '', back: false }
+        type: Object as PropType<{ text: string, back?: boolean, icon: (props: SVGAttributes) => any }>,
+        default: { text: '', back: false, icon: ArrowLeft }
     },
     subpage: {
         type: Boolean as PropType<boolean>,

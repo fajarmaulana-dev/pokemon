@@ -8,17 +8,19 @@ import { storeToRefs } from "pinia";
 const store = useMainStore()
 const { pokemons } = storeToRefs(store)
 
-// let weakness
-// const getWeakness = async () => {
-//   try {
-//     const type_detail = await get('/type/' + id)
-//     weakness = type_detail.damage_relations.double_damage_from.map((data: ShortResult) => data.name)
-//     console.log(id, weakness)
-//   } catch (err) {
-//     weakness = []
+// const weakness: { name: string, weak: string[] }[] = []
+// try {
+//   const types = await get('/type')
+//   const allTypes = types.results.map((t: ShortResult) => t.name)
+//   for (let i = 1; i <= 18; i++) {
+//     const type_detail = await get('/type/' + allTypes[i])
+//     const weakArr = type_detail.damage_relations.double_damage_from.map((data: ShortResult) => data.name)
+//     weakness.push({ name: allTypes[i], weak: weakArr })
 //   }
+// } catch (error) {
+//   console.log(error)
 // }
-// await getWeakness()
+
 // const gender_female = await get('/gender/1')
 // const genders = gender_female.pokemon_species_details.map((data: { pokemon_species: ShortResult, rate: number }) => {
 //   return { name: data.pokemon_species.name, possibility: data.rate }
@@ -32,23 +34,30 @@ const { pokemons } = storeToRefs(store)
 //     }
 //   })
 // }
-// console.log(genders)
-// const evolution: string[] = [data.name]
 
-// const get_evolution = async () => {
-//   try {
-//     const evolve = await get('/evolution-chain/' + id)
-//     if (evolve.chain.evolves_to.length > 0) {
-//       let evolution_chain: Record<string, any> = evolve.chain.evolves_to[0]
-//       while (Object.keys(evolution_chain).includes('evolves_to')) {
-//         evolution.push(evolution_chain.species.name)
-//         evolution_chain = evolution_chain.evolves_to[0]
-//       }
+// const descArr: { name: string, description: string }[] = []
+// try {
+//   const species = await get('/pokemon-species?limit=1020')
+//   const allSpecies = species.results.map((t: ShortResult) => t.name)
+//   for (const name of allSpecies) {
+//     const getDesc = await get('/pokemon-species/' + name)
+//     let variantChoosen = getDesc.flavor_text_entries[0]
+//     if (variantChoosen) {
+//       const texts: string[] = []
+//       getDesc.flavor_text_entries.forEach((i: any) => {
+//         if (i.version.name == variantChoosen.version.name && i.language.name == 'en') {
+//           texts.push(i.flavor_text)
+//         }
+//       })
+//       descArr.push({ name, description: [`Description for the ${variantChoosen.version.name} variant.`, ...texts].join(' ').trim() })
 //     }
-//   } catch (err) { return }
+//   }
+// } catch (error) {
+//   console.log(error)
 // }
-
-// await get_evolution()
+// const weaks = weakness.filter((data) => types.includes(data.name)).map((w) => w.weak).flat()
+// const desc = descArr.find((d) => d.name == data.name)
+// const female = genders.find((d) => d.name == data.name)
 </script>
 
 <template>

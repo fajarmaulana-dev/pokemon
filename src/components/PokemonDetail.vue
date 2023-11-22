@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { toRefs, ref, reactive } from "@vue/reactivity";
-import { watch } from "@vue/runtime-core";
+import { watch, onMounted } from "@vue/runtime-core";
 import { ArrowLeft, Heart } from "@iconoir/vue";
 import type { PropType } from "vue";
 import type { Pokemon, Favourite } from "@/types"
@@ -9,7 +9,7 @@ import Other from "./PokemonDetail/Other.vue";
 import Spinner from "./Spinner.vue";
 import Images from "./PokemonDetail/Images.vue";
 
-const emit = defineEmits(['heart', 'update:confirm', 'confirm', 'update:sidePage', 'confirm'])
+const emit = defineEmits(['heart', 'update:confirm', 'confirm', 'update:sidePage', 'confirm', 'catch'])
 const props = defineProps({
     data: {
         type: Object as PropType<Pokemon>,
@@ -53,13 +53,26 @@ watch(confirm, () => {
         emit('update:confirm', { state: false, index: 0 })
     }
 }, { deep: true })
+
+const screenWidth = ref(window.innerWidth);
+onMounted(() => {
+    screenWidth.value = window.innerWidth;
+    window.addEventListener('resize', () => {
+        screenWidth.value = window.innerWidth;
+    })
+})
+
+const handleCatch = () => {
+    load.catch = true;
+    emit('catch', { endload: () => load.catch = false })
+}
 </script>
 
 <template>
     <aside :style="{ transform: `translateX(${sidePage ? '0' : '100'}%)` }"
         class="fixed h-screen w-full bg-white top-0 left-0 overflow-x-hidden overflow-y-auto transition duration-500">
         <div class="relative h-[calc(80px+20vw)] w-full bg-white">
-            <Images :data="data" v-model="topSideImage" />
+            <Images :data="data" v-model="topSideImage" @catch="catched.state ? false : handleCatch()" />
             <div class="absolute top-0 h-[52px] w-full flex items-center px-4 justify-between">
                 <div v-for="i in 2" :class="{ 'is-marked': i == 2 && favourite.state }"
                     @click="i == 1 ? emit('update:sidePage', false) : favourite.state ? emit('confirm', { index }) : handleFavourite()"
@@ -77,11 +90,34 @@ watch(confirm, () => {
             <Other :data="data" />
         </div>
     </aside>
+    <div :class="load.catch ? 'translate-y-0 opacity-100' : 'translate-y-[100vh] opacity-0'"
+        class=" fixed top-0 h-screen w-screen bg-[rgb(10,25,47)] overflow-hidden grid place-items-center transition duration-300">
+        <i v-if="sidePage" v-for="i in Math.floor(screenWidth / 18)"
+            class="star absolute -top-4 w-0.5 bg-electric-0 rounded-full"
+            :style="`height: ${25 + (Math.random() * 100)}px; left: ${Math.floor(Math.random() * screenWidth)}px; animation-duration: ${(Math.random() * 100) + 1}s`"></i>
+        <img src="@/assets/alola-01.avif" :class="load.catch ? 'scale-100 delay-300' : 'scale-0'"
+            class="relative z-[10] w-[75vw] max-w-[480px] transition duration-300" alt="animated image">
+        <b class="font-semibold text-white text-center text-lg">Penangkapan sedang dalam proses...</b>
+    </div>
 </template>
 
 <style scoped>
 .is-marked:deep(path) {
     fill: #CD3131;
     stroke-width: 1;
+}
+
+.star {
+    animation: star linear infinite;
+}
+
+@keyframes star {
+    0% {
+        transform: translateY(0);
+    }
+
+    100% {
+        transform: translateY(100vh);
+    }
 }
 </style>

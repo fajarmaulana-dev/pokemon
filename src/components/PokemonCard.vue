@@ -38,7 +38,7 @@ import type { PokemonCard, PokemonCardAction, Favourite } from "@/types";
 
 // use loadmore to perform loading effect when fetch more data
 
-// catched: if true, it's mean that the pokemon has been catched
+// catched: if id of data contained in catched, it's mean that the pokemon has been catched
 
 // confirm: to receive confirmation data of removed item from favourite
 
@@ -65,8 +65,8 @@ const props = defineProps({
         default: false
     },
     catched: {
-        type: Boolean as PropType<boolean>,
-        default: false
+        type: Array as PropType<string[]>,
+        default: []
     },
     confirm: {
         type: Object as PropType<{ state: boolean, index: number }>,
@@ -146,7 +146,7 @@ const endSlide = (e: any, param: { mobile?: boolean, index?: number } = { mobile
                 :style="{ transform: `translateX(-${slide[idx] ? 4 * Math.ceil(actions.length / 2) : 0}rem)` }">
                 <CardContent :data="pokemon" @open="handleOpen(idx)" :openload="openload[idx]" />
                 <CardImage :data="pokemon" :index="idx" :heart="heart" :loading="loadHeart[idx]" :grab="grab"
-                    :catched="catched" :action-length="actions.length"
+                    :catched="catched.includes(pokemon.id)" :action-length="actions.length"
                     @heart="heart[idx].state ? emit('confirm', { index: idx }) : handleFavourite(idx)"
                     @start-touch="({ e, mobile }) => startSlide(e, { mobile })"
                     @end-touch="({ e, mobile }) => endSlide(e, { mobile, index: idx })" />
