@@ -1,22 +1,26 @@
 <script setup lang="ts">
 import { ref, computed, reactive } from "@vue/reactivity";
-import { onMounted, watch } from "@vue/runtime-core";
-import PokemonCards from "~/PokemonCards.vue";
-import Footer from "~/Footer.vue";
-import Regions from "~/Regions.vue";
+import { onMounted, watch, inject } from "@vue/runtime-core";
+import DesktopMain from "~/DesktopMain.vue";
+import MobileMain from "~/MobileMain.vue";
+import MobileMainPane from "~/MobileMainPane.vue";
+import SplashScreen from "~/SplashScreen.vue";
 import { useMainStore } from "@/stores"
-import PokemonDetail from "~/PokemonDetail.vue"
+import PokemonDetail from "~/PokemonDetail.vue";
 import { storeToRefs } from 'pinia';
-import { TrashSolid, ArrowLeft, Xmark } from "@iconoir/vue";
-import BottomPaneWrapper from "~/BottomPaneWrapper.vue";
-import type { PokemonCard, Pokemon, Favourite, Filter, MyPokemon } from "@/types";
+import { TrashSolid, ArrowLeft } from "@iconoir/vue";
+import Modal from "~/Modal.vue"
+import type { PokemonCard, Pokemon, Favourite, Filter, MyPokemon, Names } from "@/types";
 import debounce from 'lodash.debounce';
-import { doFilter, doHeart, initData } from "./_index"
+import { doFilter, initData, getPokeDetail } from "~/Func/data";
 import Local from "../api/local"
-import { overflowHandler } from "@/components";
+import { overflowHandler } from "~/.";
+import { toTop, filterFunc, setLocalData, getTypes, doHeart, doCatch } from "~/Func/method"
+
+// const trashsolid = inject('TrashSolid')
 
 const store = useMainStore()
-const { page, pokemons, favourites, myPokemon, regions, types, justFavourite, favouriteData, pokedexData } = storeToRefs(store)
+const { page, favourites, favouriteType, myPokemon, myPokemonType, regions, types, names, genders } = storeToRefs(store)
 
 // navigation index for region page
 const regionSubPage = ref(0)
@@ -26,18 +30,20 @@ const regionPageName = reactive({ text: 'kanto', back: true, icon: ArrowLeft })
 const cardSlideState = reactive<Record<string, boolean[]>>({ favorit: [], pokedex: [] })
 
 // action list for cards in favourite and pokedex pages, learn more in PokemonCard.vue
-const cardActions = [
-    { label: 'remove', icon: TrashSolid, color: { init: 'rose-500', hover: 'rose-500/80' }, async: false },
-]
+const cardActions = [{ label: 'remove', icon: TrashSolid, color: { init: 'rose-500', hover: 'rose-500/80' }, async: false }]
 
-const onBottom = ref(false)
+const pokedex = ref(false)
+const forPokedex = computed(() => pokedex.value ? 'pokedex' : page.value.index < 3 ? page.value.name : 'favorit')
 const paneFor = ref('')
-const paneIsOpen = reactive<Record<string, boolean>>({
-    type: false,
-    sort: false,
-    confirm: false,
-    pokedex: false,
-})
+const paneIsOpen = reactive<Record<string, boolean>>({ type: false, sort: false, confirm: false, pokedex: false })
+
+// some trick to create reactive needs by menu label
+const menuLabel = ['beranda', 'wilayah', 'favorit', 'pokedex']
+const reGen = (labels: string[], value: any) => Object.fromEntries(labels.map((label) => [label, value]))
+const onBottom = reactive<Record<string, boolean>>(reGen(menuLabel, false))
+const errors = reactive<Record<string, boolean>>(reGen(menuLabel, false))
+const screenWidth = ref(window.innerWidth);
+const screenHeight = ref(window.innerHeight);
 
 // filter params to filter data
 /*
@@ -48,16 +54,35 @@ const paneIsOpen = reactive<Record<string, boolean>>({
         mode: (asc/desc) to sort as ascending or descending
     region: (all/a region) to filter by spreading of pokemons
     next: if true, this param informs that there are still some pokemons that can be displayed based on filter results
+    mode: to give diffence between pages
 */
-const filter = reactive<Record<string, Filter>>({
-    beranda: { search: '', type: '', sort: { by: 'id', mode: 'asc' }, region: '', next: true, mode: '' },
-    wilayah: { search: '', type: '', sort: { by: 'id', mode: 'asc' }, region: '', next: true, mode: '' },
-    favorit: { search: '', type: '', sort: { by: 'id', mode: 'asc' }, region: '', next: true, mode: 'favourite' },
-    pokedex: { search: '', type: '', sort: { by: 'id', mode: 'asc' }, region: '', next: true, mode: 'catched' },
-})
+
+const filter = reactive<Record<string, Filter>>(Object.fromEntries(menuLabel.map((label) => {
+    return [label, { search: '', type: '', sort: { by: 'id', mode: 'asc' }, region: '', next: true, mode: ['favorit', 'pokedex'].includes(label) ? label : '' }];
+})))
 
 // loading state on filter progress
-const filterLoad = reactive<Record<string, boolean>>({ type: false, sort: false })
+const filterLoad = reactive<Record<string, Record<string, boolean>>>({
+    beranda: { type: false, sort: false, search: false, region: false },
+    wilayah: { type: false, sort: false, search: false, region: false },
+    favorit: { type: false, sort: false, search: false, region: false },
+    pokedex: { type: false, sort: false, search: false, region: false }
+})
+
+// disable filter feature when filter action already trigged or when user request for more data
+const disableFilter = computed(() => {
+    const onMore = onBottom[forPokedex.value] && filter[forPokedex.value].next
+    return Object.keys(filterLoad[forPokedex.value]).some((f) => filterLoad[forPokedex.value][f]) || onMore
+})
+
+// disable more data request when filter action already under perform
+watch(() => filterLoad[forPokedex.value], () => {
+    if (Object.keys(filterLoad[forPokedex.value]).some((f) => filterLoad[forPokedex.value][f])) {
+        filter[forPokedex.value].next = false
+    } else {
+        filter[forPokedex.value].next = true
+    }
+})
 // label state in filter by type and sort
 const filterLabel = reactive<Record<string, Record<string, string>>>({
     beranda: { type: '', sort: 'Nomor 1 - N' },
@@ -66,8 +91,6 @@ const filterLabel = reactive<Record<string, Record<string, string>>>({
     pokedex: { type: '', sort: 'Nomor 1 - N' }
 })
 
-const pokedex = ref(false)
-const forPokedex = computed(() => pokedex.value ? 'pokedex' : page.value.name)
 // list of method for filter by type and sort
 const filterItems = computed(() => {
     if (paneFor.value == 'type') return ['', ...availableType[forPokedex.value]]
@@ -76,142 +99,264 @@ const filterItems = computed(() => {
 
 // open filter pane
 const openFilter = (filter: string) => {
-    const el = document.getElementById('filter-pane') as HTMLElement;
-    if (el) el.scrollTop = 0;
-    paneFor.value = filter;
-    paneIsOpen[filter] = true
+    if (screenWidth.value < 768) {
+        toTop('filter-pane')
+        paneFor.value = filter;
+        paneIsOpen[filter] = true
+    }
 }
 
 // change filter and its label value when one item in filter pane has been clicked
 const chooseFilter = (is: string, item: string) => {
-    if (is == 'type') {
-        if (item !== filterLabel[forPokedex.value].type) {
-            filter[forPokedex.value].type = item
-            filterLabel[forPokedex.value].type = item
-            filterLoad[is] = true
-        }
-    } else {
-        if (item !== filterLabel[forPokedex.value].sort) {
-            filter[forPokedex.value].sort.by = item.startsWith('Nomor') ? 'id' : 'name';
-            filter[forPokedex.value].sort.mode = item.includes('1 -') || item.includes('A -') ? 'asc' : 'desc';
-            filterLabel[forPokedex.value].sort = item
-            filterLoad[is] = true
-        }
-    }
+    const { filterRes, labelRes, loadRes } = filterFunc(is, item, filter[forPokedex.value], filterLabel[forPokedex.value], filterLoad[forPokedex.value][is])
+    filter[forPokedex.value] = filterRes;
+    filterLabel[forPokedex.value] = labelRes;
+    filterLoad[forPokedex.value][is] = loadRes;
     paneIsOpen[is] = false
 }
 
-const typesLabel = (idx: number, type: string) => idx == 0 ? 'Semua Tipe' : `Tipe ${type[0].toUpperCase() + type.slice(1, type.length)}`
-
 // model for search input
-const search = reactive<Record<string, string>>({ beranda: '', wilayah: '', favorit: '', pokedex: '' })
+const search = reactive<Record<string, string>>(reGen(menuLabel, ''))
 
 // debounce user type for 500ms
-const bounce = debounce(() => {
+const bounce = debounce(async () => {
     filter[forPokedex.value].search = search[forPokedex.value]
-    filterPokemon()
+    filterLoad[forPokedex.value].search = true
+    errors[forPokedex.value] = false
+    try {
+        await filterPokemon('filter')
+        filterLoad[forPokedex.value].search = false
+        toTop(forPokedex.value)
+        setTimeout(() => {
+            const el = document.getElementById(`${['favorit', 'pokedex'].includes(forPokedex.value) ? forPokedex.value : 'home'}-desktop-filter`)
+            el?.focus()
+        }, 100)
+    } catch (error) {
+        filterLoad[forPokedex.value].search = false
+        errors[forPokedex.value] = true
+    }
 }, 500)
 
-watch(search, () => {
-    bounce()
-}, { deep: true })
+watch(() => search[forPokedex.value], () => {
+    if (forPokedex.value == previousPage.value) bounce()
+    previousPage.value = forPokedex.value
+})
 
 // list of types that available in current page
-const availableType = reactive<Record<string, string[]>>({ beranda: [], wilayah: [], favorit: [], catched: [] })
-const getTypesColor = (type: string, idx: number) => {
-    if (idx == 0 || paneFor.value == 'sort') return 'bg-slate-300/80 hover:bg-slate-300/90 active:bg-slate-300';
-    else return `bg-${type}-1/50 hover:bg-${type}-1/60 active:bg-${type}-1/70`
-}
+const availableType = reactive<Record<string, string[]>>(reGen(menuLabel, []))
 
 // this is the datas that dislayed to user
-const filteredPokemon = reactive<Record<string, PokemonCard[]>>({ beranda: [], wilayah: [], favorit: [], pokedex: [] })
+const filteredPokemon = reactive<Record<string, PokemonCard[]>>(reGen(menuLabel, []))
 
 // this is favourite states for displayed datas
-const filteredFavourite = reactive<Record<string, Favourite[]>>({ beranda: [], wilayah: [], favorit: [], pokedex: [] })
+const filteredFavourite = reactive<Record<string, Favourite[]>>(reGen(menuLabel, []))
 
-const filterData = (pokemon: PokemonCard[]) => pokemon.filter((data) => data.image !== '')
-const filterHeart = (heart: Favourite[], types: string) => heart.filter((data) => filteredPokemon[types].map((d) => d.id).includes(data.id))
 const filterType = (types: PokemonCard[]) => [...new Set(types.map((data) => data.types).flat())]
 const hideSplash = ref(false)
 
-onMounted(async () => {
-    document.getElementById("splash")?.remove()
-    overflowHandler('hidden')
-    // INI DATANYA MUNCUL DI CONSOLE TAPI KOK GAK BISA DI CONSUME. ARGHHHHH
-    const { data, error } = await initData(regions.value, types.value)
-    store.$patch({ pokemons: data })
-    let favourite = Local.getData('poke-love') as Favourite[]
-    let pokedex = Local.getData('poke-dex') as MyPokemon[]
-    if (!favourite) favourite = data.map((p) => { return { id: p.id, state: false, date: '' } })
-    if (!pokedex) pokedex = []
-    store.$patch({ favourites: favourite, myPokemon: pokedex })
+// save favourites and pokedex data to local storage when browser refreshed
+const refreshed = ref(false)
+watch(refreshed, () => { setLocalData(favourites.value, myPokemon.value, favouriteType.value, myPokemonType.value) })
+// to show error network message when the value is true
+const err_network = ref(false)
 
-    filteredPokemon['beranda'] = filterData(data)
-    filteredFavourite['beranda'] = filterHeart(favourite, 'beranda')
-    availableType['beranda'] = types.value
-    filteredFavourite['pokedex'] = filterHeart(favourite, 'pokedex')
-    availableType['pokedex'] = filterType(pokedexData.value)
-    filteredPokemon['favorit'] = filterData(favouriteData.value)
-    filteredFavourite['favorit'] = filterHeart(favourite, 'favorit')
-    availableType['favorit'] = filterType(favouriteData.value)
-    cardSlideState['favorit'] = favourite.map((_, i) => false)
+const fetch_init = async () => {
+    // get favourite and pokedex data from local storage
+    err_network.value = false
+    let favourite = Local.getData('poke-love') as Favourite[] || []
+    let pokedexes = Local.getData('poke-dex') as MyPokemon[] || []
+    let favouriteTypes = Local.getData('type-love') as Record<string, number> || favouriteType.value
+    let pokedexesType = Local.getData('type-dex') as Record<string, number> || myPokemonType.value
+    // get initial data
+    const initNeeds = { regions: Object.keys(regions.value), types: Object.keys(types.value), favourite, catched: pokedexes }
+    try {
+        const { data, names, spreads, variants, favouriteData, mineData, genders } = await initData(initNeeds)
+        // create favourite data with all state as false when no favourite data is initialized
+        if (favourite.length == 0) favourite = names.map((p: Names) => { return { id: p.id, state: false, date: '' } })
 
-    overflowHandler('auto')
-    hideSplash.value = true
-})
+        // store some data to global state for further use
+        store.$patch({ favourites: favourite, favouriteType: favouriteTypes, myPokemon: pokedexes, myPokemonType: pokedexesType, names, regions: spreads, types: variants, genders })
 
-// watch change of favourite datas
-watch(favourites, () => {
-    filteredPokemon['favorit'] = favouriteData.value.filter((data) => data.image !== '')
-    availableType['favorit'] = [...new Set(favouriteData.value.map((data) => data.types).flat())]
-})
-
-// filter data by filter
-const filterPokemon = async () => {
-    const result = await doFilter({
-        filter: filter[forPokedex.value],
-        all: pokemons.value,
-        heart: justFavourite.value,
-        catch: myPokemon.value.map((data) => data.id)
-    })
-    filter[forPokedex.value].next = result.next
-
-    setTimeout(() => {
-        // update filteredPokemon data and filteredFavourite
-        filterLoad.type = false;
-        filterLoad.sort = false;
-        const filteredIds = result.data.map((data) => data.id)
-        filteredPokemon[forPokedex.value] = result.data
-        filteredFavourite[forPokedex.value] = favourites.value.filter((data) => filteredIds.includes(data.id))
-    }, 2000)
+        // store initial data to reactive variables
+        setTimeout(() => {
+            filteredPokemon['beranda'] = data
+            filteredFavourite['beranda'] = favourite.slice(0, 20)
+            availableType['beranda'] = Object.keys(types.value)
+            filteredPokemon['wilayah'] = data
+            availableType['wilayah'] = Object.keys(types.value)
+            filteredPokemon['pokedex'] = mineData
+            filteredFavourite['pokedex'] = favourite.filter((data) => mineData.map((d) => d.id).includes(data.id))
+            availableType['pokedex'] = filterType(mineData)
+            filteredPokemon['favorit'] = favouriteData
+            filteredFavourite['favorit'] = favourite.filter((data) => data.state)
+            availableType['favorit'] = filterType(favouriteData)
+            cardSlideState['favorit'] = favouriteData.map((_, i) => false)
+            cardSlideState['pokedex'] = mineData.map((_, i) => false)
+            hideSplash.value = true
+            overflowHandler('auto')
+        }, 1000)
+    } catch (err) {
+        err_network.value = true
+    }
 }
 
-// watch change on filter
-watch(filter, () => { filterPokemon() }, { deep: true })
+onMounted(async () => {
+    // detect refreshed tab
+    window.addEventListener('beforeunload', () => {
+        refreshed.value = true;
+    })
+    // detect page resize event
+    screenWidth.value = window.innerWidth;
+    window.addEventListener('resize', () => {
+        screenWidth.value = window.innerWidth;
+        screenHeight.value = window.innerHeight;
+    })
+    // change functionality of back button to back between component
+    history.pushState('fake', '', document.URL)
+    window.onpopstate = () => {
+        history.pushState('fake', '', document.URL)
+        if (sideIsOpen.value) {
+            sideIsOpen.value = false
+        } else if (pokedex.value) {
+            pokedex.value = false
+        } else {
+            if (page.value.index > 0) {
+                store.$patch({ page: { name: 'beranda', index: 0 } })
+            }
+            else {
+                refreshed.value = true
+                setTimeout(() => { history.go(-history.length + 1) }, 0)
+            }
+        }
+    }
 
-// trigger filter function to load more data when user has scroll to the bottom
-watch(onBottom, () => {
-    if (onBottom.value) {
-        if (filter[forPokedex.value].next) filterPokemon()
-        setTimeout(() => { onBottom.value = false }, 2000)
+    // remove startup splash screen on mounted
+    document.getElementById("splash")?.remove()
+    // overflow hidden before data is ready
+    overflowHandler('hidden')
+    await fetch_init()
+})
+
+const dataUpdated = reactive<Record<string, boolean>>({ favorit: false, pokedex: false })
+const transformType = (types: Record<string, number>) => Object.keys(types).filter((d) => types[d] > 0)
+// watch change of favourite datas
+watch(favourites, async () => {
+    availableType['favorit'] = transformType(favouriteType.value);
+    errors['favorit'] = false
+    // auto update favourite for desktop mode
+    if (screenWidth.value >= 768) {
+        try { await filterPokemon('filter', 'favorit') }
+        catch (error) { errors['favorit'] = true }
     }
 }, { deep: true })
 
-const confirmType = ref('')
-const confirmData = reactive<Record<string, { text: string, confirm: { state: boolean, index: number } }>>({
-    home: { text: '', confirm: { state: false, index: 0 } },
-    region: { text: '', confirm: { state: false, index: 0 } },
-    side: { text: '', confirm: { state: false, index: 0 } },
-    pokedex: { text: '', confirm: { state: false, index: 0 } },
+// watch change of pokedex datas
+watch(myPokemon, async () => {
+    availableType['pokedex'] = transformType(myPokemonType.value);
+    errors['pokedex'] = false
+    // auto update pokedex for desktop mode
+    if (screenWidth.value >= 768) {
+        try { await filterPokemon('filter', 'pokedex') }
+        catch (error) { errors['pokedex'] = true }
+    }
+}, { deep: true })
+
+// filter data by filter param
+const filterPokemon = async (mode: string, isTo: string = forPokedex.value) => {
+    const result = await doFilter({
+        filter: filter[isTo],
+        init: filteredPokemon[isTo],
+        heart: favourites.value.filter((data) => data.state).map((data) => data.id),
+        catches: myPokemon.value.map((data) => data.id),
+        names: names.value,
+        types: types.value,
+        regions: regions.value,
+        mode
+    })
+
+    // update filteredPokemon data and filteredFavourite
+    filter[isTo].next = result.next
+    filterLoad[isTo].type = false;
+    filterLoad[isTo].sort = false;
+    const filteredIds = result.data.map((data) => data.id)
+    filteredPokemon[isTo] = result.data
+    filteredFavourite[isTo] = favourites.value.filter((data) => filteredIds.includes(data.id))
+}
+
+// watch change on filter
+const previousPage = ref('beranda')
+const refresh = ref(false)
+watch(() => [filter[forPokedex.value].type, filter[forPokedex.value].sort.by, filter[forPokedex.value].sort.mode, refresh.value], async () => {
+    // prevent update on navigation action when no update in destination page
+    if ((forPokedex.value == previousPage.value) || filter[forPokedex.value].mode == forPokedex.value && dataUpdated[forPokedex.value]) {
+        errors[forPokedex.value] = false
+        try {
+            await filterPokemon('filter')
+            toTop(forPokedex.value)
+            dataUpdated[forPokedex.value] = false
+        } catch (error) {
+            errors[forPokedex.value] = true
+        }
+    }
+    previousPage.value = forPokedex.value
+    refresh.value = false
+})
+
+// trigger filter function to load more data when user has scroll to the bottom
+watch(() => onBottom[forPokedex.value], async () => {
+    if (onBottom[forPokedex.value]) {
+        if (filter[forPokedex.value].next) {
+            errors[forPokedex.value] = false
+            try { await filterPokemon('getmore') }
+            catch (error) { errors[forPokedex.value] = true }
+        }
+        onBottom[forPokedex.value] = false
+    }
+})
+
+// filter by region for mobile user
+const openRegion = async ({ name, endload }: { name: string, endload: () => void }) => {
+    toTop('wilayah')
+    search['wilayah'] = ''
+    filter.wilayah = { search: '', sort: { by: 'id', mode: 'asc' }, type: '', region: name, next: true, mode: '' }
+    regionPageName.text = name;
+    errors['wilayah'] = false
+    try {
+        await filterPokemon('filter')
+    } catch (error) {
+        errors['wilayah'] = true
+        refreshTemp.value = { name, endload }
+    }
+    availableType['wilayah'] = getTypes(types.value, regions.value, name)
+    regionSubPage.value = 1
+    endload()
+    // setTimeout(() => { endload() }, 2000) // use this to perfom loading simulation
+}
+
+const deskOpenRegion = async (name: string) => {
+    // toTop('beranda')
+    filterLoad['wilayah'].region = true;
+    await openRegion({ name, endload: () => filterLoad['wilayah'].region = false })
+}
+
+const confirmType = ref('beranda')
+type ConfirmData = Record<string, { text: string, confirm: { state: boolean, index: number } }>
+const confirmData = reactive<ConfirmData>({
+    'beranda': { text: '', confirm: { state: false, index: 0 } },
+    'wilayah': { text: '', confirm: { state: false, index: 0 } },
+    'detail': { text: '', confirm: { state: false, index: 0 } }
 })
 
 // to change favourite state of selected data, learn more in PokemonCard.vue
+// const normalizer = ref(new Date().getTime())
 const handleFavourite = ({ index, endload }: { index: number, endload: () => void }) => {
-    store.$patch({ favourites: doHeart({ toHandle: filteredFavourite[forPokedex.value], index, all: favourites.value }) })
+    store.$patch(doHeart(favouriteType.value, favourites.value, filteredFavourite[forPokedex.value], filteredPokemon[forPokedex.value], index))
+    dataUpdated['favorit'] = true
     endload()
     // setTimeout(() => { endload() }, 1000) // use this to perfom loading simulation
 }
 
+// method on open confirm pane
 const openConfirm = ({ index }: { index: number }) => {
     const selectedData = filteredPokemon[forPokedex.value][index]
     confirmData[confirmType.value].text = selectedData.name
@@ -225,56 +370,22 @@ const onFavouriteConfirm = (index: number) => {
     paneIsOpen['confirm'] = false;
 }
 
-// filter by region for mobile user
-const openRegion = ({ name, endload }: { name: string, endload: () => void }) => {
-    const el = document.getElementById('region') as HTMLElement;
-    if (el) el.scrollTop = 0;
-    search['wilayah'] = ''
-    filter.wilayah = { search: '', sort: { by: 'id', mode: 'asc' }, type: '', region: name, next: true, mode: '' }
-    availableType['wilayah'] = [...new Set(pokemons.value.filter((d) => d.spread.includes(name)).map((d) => d.types).flat())]
-    regionPageName.text = name;
-    // endload()
-    setTimeout(() => {
-        endload()
-        regionSubPage.value = 1
-    }, 2000) // use this to perfom loading simulation
+const updateFavOrCatch = (is: string, index: number) => {
+    let tempType = favouriteType.value
+    filteredPokemon[is][index].types.forEach(t => tempType[t]--)
+    filteredPokemon[is].splice(index, 1)
+    cardSlideState[is].splice(index, 1)
+    return tempType
 }
 
+// method to remove data from favourites
 const unFavourite = ({ index, id }: { index: number, id: string }) => {
-    store.$patch({
-        favourites: favourites.value.map((data) => {
-            let temp = data;
-            if (temp.id == id) {
-                temp.state = false;
-                temp.date = '';
-            }
-            return temp
-        }),
-    })
-    cardSlideState['favorit'].splice(index, 1)
-}
-
-const getPokemon = () => {
-    return {
-        id: '0002',
-        name: 'ivysaur',
-        gif: 'alola-01.avif',
-        types: ['grass', 'poison'],
-        description: 'Lorem ipsum dolor sit amet consectetur adipisicing elit. A ipsam amet libero deserunt minima nesciunt quo sequi fugit nostrum esse, sit, itaque animi facere, tenetur quia perferendis labore suscipit. Esse.',
-        detail: {
-            weight: '6.9 kg',
-            height: '0.7 m',
-            spread: ['kanto', 'johto'],
-            abilities: ['overgrow', 'poison'],
-        },
-        femalePossibility: .5,
-        weakness: ['flying', 'fighting', 'dragon', 'fairy'],
-        evolution: [
-            { id: '0001', name: 'bulbasaur', image: 'alola-01.avif', types: ['grass', 'poison'], minLevel: 0 },
-            { id: '0002', name: 'ivysaur', image: 'alola-02.avif', types: ['grass', 'poison'], minLevel: 16 },
-            { id: '0003', name: 'venusaur', image: 'alola-03.avif', types: ['grass', 'poison'], minLevel: 36 },
-        ]
+    let temp = favourites.value
+    for (const i in temp) {
+        if (temp[i].id == id) { temp[i].state = false; temp[i].date = '' }
     }
+    const tempType = updateFavOrCatch('favorit', index)
+    store.$patch({ favourites: temp, favouriteType: tempType })
 }
 
 const selectedIndex = ref(0)
@@ -282,7 +393,9 @@ const selectedFavourite = ref({ id: '', state: false, date: '' })
 const selectedCatched = ref({ state: false, date: '' })
 const sideIsOpen = ref(false)
 const allCatched = computed(() => myPokemon.value.map((data) => data.id))
+const selectedPokemon = ref<Pokemon>({ id: '', name: '', gif: '', types: [], description: '', detail: { weight: '', height: '', experience: '', abilities: [] }, femalePossibility: 0, weakness: [], evolution: [] })
 
+// get a pokemon data and open the detail, learn more in PokemonDetail.vue
 const openCard = async ({ index, endload }: { index: number, endload: () => void }) => {
     selectedIndex.value = index
     selectedFavourite.value = filteredFavourite[forPokedex.value][index];
@@ -292,138 +405,100 @@ const openCard = async ({ index, endload }: { index: number, endload: () => void
     } else {
         selectedCatched.value = { state: false, date: '' }
     }
-    selectedPokemon.value = getPokemon()
-    setTimeout(() => {
-        sideIsOpen.value = true;
+    const selectedData = filteredPokemon[forPokedex.value][index]
+    const gender = genders.value.find((data) => data.name == selectedData.name)?.possibility as number
+    errors[forPokedex.value] = false;
+    try {
+        selectedPokemon.value = await getPokeDetail({ ...selectedData, gender, spreads: regions.value, allTypes: Object.keys(types.value) })
+        toTop('detail')
+        setTimeout(() => {
+            sideIsOpen.value = true;
+            endload()
+        }, 1000)
+    } catch (error) {
+        errors[forPokedex.value] = true;
         endload()
-    }, 1000)
+    }
 }
 
+// to perform animation and catch a pokemon
 const handleCatch = ({ endload }: { endload: () => void }) => {
-    const id = filteredPokemon[forPokedex.value][selectedIndex.value].id
-    const temp = { id, date: new Date().toLocaleDateString() }
-    store.$patch({ myPokemon: [...myPokemon.value, temp] })
+    const { temp, updatedType } = doCatch(myPokemonType.value, filteredPokemon[forPokedex.value][selectedIndex.value])
+    store.$patch({ myPokemon: [...myPokemon.value, temp], myPokemonType: updatedType })
     selectedCatched.value = { state: true, date: temp.date }
+    dataUpdated['pokedex'] = true
     setTimeout(() => { endload() }, 5000)
 }
 
-const selectedPokemon = ref<Pokemon>({
-    id: '0001',
-    name: 'bulbasaur',
-    gif: 'alola-01.avif',
-    types: ['grass', 'poison'],
-    description: 'Lorem ipsum dolor sit amet consectetur adipisicing elit. A ipsam amet libero deserunt minima nesciunt quo sequi fugit nostrum esse, sit, itaque animi facere, tenetur quia perferendis labore suscipit. Esse.',
-    detail: {
-        weight: '6.9 kg',
-        height: '0.7 m',
-        spread: ['kanto', 'johto'],
-        abilities: ['overgrow', 'poison'],
-    },
-    femalePossibility: .5,
-    weakness: ['flying', 'fighting', 'dragon', 'fairy'],
-    evolution: [
-        { id: '0001', name: 'bulbasaur', image: 'alola-01.avif', types: ['grass', 'poison'], minLevel: 0 },
-        { id: '0002', name: 'ivysaur', image: 'alola-02.avif', types: ['grass', 'poison'], minLevel: 16 },
-        { id: '0003', name: 'venusaur', image: 'alola-03.avif', types: ['grass', 'poison'], minLevel: 36 },
-    ]
+// to remove data from catched datas
+const unCatch = ({ index, id }: { index: number, id: string }) => {
+    const tempType = updateFavOrCatch('pokedex', index)
+    store.$patch({ myPokemon: myPokemon.value.filter((data) => data.id !== id), myPokemonType: tempType })
+}
+
+const mobPaneText = computed(() => {
+    return { item: confirmData[confirmType.value].text, name: forPokedex.value }
 })
+
+const cardConfirm = (data: { index: number, name: string }) => {
+    confirmType.value = data.name;
+    openConfirm({ index: data.index })
+}
+
+const netErrAction = async (i: number) => i == 0 ? await fetch_init() : history.go(-history.length + 1)
+
+// to perform refresh after network error
+const refreshTemp = ref<any>()
+const refreshLoad = reactive<Record<string, boolean>>(reGen(menuLabel, false))
+const refreshData = async () => {
+    refreshLoad[forPokedex.value] = true
+    if (forPokedex.value == 'wilayah') {
+        if (screenWidth.value < 768) await openRegion(refreshTemp.value)
+        else await deskOpenRegion(refreshTemp.value)
+    } else {
+        dataUpdated[forPokedex.value] = true;
+        refresh.value = true
+    }
+    refreshLoad[forPokedex.value] = false
+}
 </script>
 
 <template>
-    <div class="flex transition duration-500 [&>*]:min-w-full [&>*]:h-[calc(100vh-60px)] [&>*]:z-[1] [&>*]:overflow-x-hidden
-        [&>*]:overflow-y-auto" :style="{ transform: `translateX(-${page.index * 100}%)` }">
-        <!-- Beranda -->
-        <section>
-            <PokemonCards id="home" v-model:text="search['beranda']" name="home-filter" :label="filterLabel['beranda']"
-                :load="filterLoad" @open-filter="openFilter" @heart="handleFavourite" :catched="allCatched"
-                @confirm="({ index }) => { confirmType = 'home'; openConfirm({ index }) }"
-                v-model:confirm="confirmData.home.confirm" :data="filteredPokemon['beranda']"
-                :heart="filteredFavourite['beranda']" @open-card="openCard" v-model:loadmore="filter['beranda'].next"
-                v-model:on-bottom="onBottom" />
-        </section>
-        <!-- Wilayah -->
-        <section>
-            <div class="flex w-full h-full transition duration-500 [&>*]:min-w-full [&>*]:z-[1]"
-                :style="{ transform: `translateX(-${regionSubPage * 100}%)` }">
-                <div class="p-6 pb-12 overflow-y-auto text-slate-800">
-                    <b class="text-lg xs:text-xl">Wilayah</b>
-                    <p class="text-sm xs:text-base mt-1 mb-6">
-                        Jelajahi wilayah tertentu untuk menemukan pokemon yang kamu inginkan</p>
-                    <Regions :data="regions" @open="openRegion" />
-                </div>
-                <div class="overflow-hidden">
-                    <PokemonCards id="region" v-model:text="search['wilayah']" name="region-filter"
-                        :page-name="regionPageName" subpage @back="regionSubPage = 0" :label="filterLabel['wilayah']"
-                        :load="filterLoad" @open-filter="openFilter" :heart="filteredFavourite['wilayah']"
-                        v-model:confirm="confirmData.region.confirm" @heart="handleFavourite"
-                        @confirm="({ index }) => { confirmType = 'region'; openConfirm({ index }) }"
-                        :data="filteredPokemon['wilayah']" @open-card="openCard" v-model:loadmore="filter['wilayah'].next"
-                        v-model:on-bottom="onBottom" />
-                </div>
-            </div>
-        </section>
-        <!-- Favorit -->
-        <section>
-            <PokemonCards id="favourite" v-model:text="search['favorit']" name="favourite-filter"
-                :page-name="{ text: 'Favorit', icon: ArrowLeft }" :label="filterLabel['favorit']" :load="filterLoad"
-                @open-filter="openFilter" :data="filteredPokemon['favorit']" @open-card="openCard"
-                v-model:loadmore="filter['favorit'].next" :actions="cardActions" @action="unFavourite"
-                v-model:on-bottom="onBottom" v-model:slide="cardSlideState['favorit']" />
-        </section>
-        <!-- Profil -->
-        <section class="bg-yellow-500"></section>
+    <!-- main view -->
+    <div v-for="i in 2">
+        <component :is="i == 1 ? DesktopMain : MobileMain" v-if="screenWidth >= 768 ? i == 1 : i == 2" :filter="filter"
+            :filter-load="filterLoad" :search="search" :filter-label="filterLabel" :on-bottom="onBottom" @un-catch="unCatch"
+            v-model:pokedex="pokedex" :all-catched="allCatched" :confirm-data="confirmData" :card-actions="cardActions"
+            :filtered-pokemon="filteredPokemon" :filtered-favourite="filteredFavourite" :card-slide-state="cardSlideState"
+            :disable-filter="disableFilter" @open-card="openCard" @open-filter="openFilter" :available-type="availableType"
+            :forPokedex="forPokedex" v-model:subPage="regionSubPage" :subName="regionPageName" @choose-filter="chooseFilter"
+            @all-region="filter['wilayah'].region = ''" @handle-favourite="handleFavourite" @un-favourite="unFavourite"
+            @desktop-region="deskOpenRegion" @mobile-region="openRegion" @card-confirm="cardConfirm" :error="errors"
+            :refresh-load="refreshLoad" @refresh="refreshData()">
+        </component>
     </div>
-    <!-- Footer -->
-    <Footer @pokedex="pokedex = true" />
-    <!-- Pokedex -->
-    <section class="pokedex fixed overflow-auto h-screen w-full top-0 bg-white transition duration-500"
-        :style="{ transform: `translateY(${pokedex ? '0' : '100'}%)` }">
-        <PokemonCards id="pokedex" v-model:text="search['pokedex']" name="pokedex-filter"
-            :page-name="{ text: 'Pokedex', back: true, icon: Xmark }" @back="pokedex = false"
-            :label="filterLabel['pokedex']" :load="filterLoad" @open-filter="openFilter" :data="filteredPokemon['pokedex']"
-            :actions="cardActions" @action="false" @open-card="openCard" v-model:loadmore="filter['pokedex'].next"
-            v-model:on-bottom="onBottom" />
-    </section>
     <!-- Detail Pokemon -->
-    <PokemonDetail :data="selectedPokemon" :favourite="selectedFavourite" :catched="selectedCatched" :index="selectedIndex"
-        v-model:side-page="sideIsOpen" @heart="handleFavourite" v-model:confirm="confirmData.side.confirm"
-        @confirm="({ index }) => { confirmType = 'side'; openConfirm({ index }) }" @catch="handleCatch" />
+    <PokemonDetail id="detail" :data="selectedPokemon" :favourite="selectedFavourite" :catched="selectedCatched"
+        :index="selectedIndex" v-model:side-page="sideIsOpen" @heart="handleFavourite"
+        v-model:confirm="confirmData['detail'].confirm"
+        @confirm="({ index }) => { confirmType = 'detail'; openConfirm({ index }) }" @catch="handleCatch" />
     <!-- Pane -->
-    <BottomPaneWrapper v-model:open="paneIsOpen[paneFor]">
-        <!-- For Filter -->
-        <div v-if="paneFor == 'type' || paneFor == 'sort'" id="filter-pane"
-            class="filter flex flex-wrap gap-3 px-5 [&>*]:w-full h-fit max-h-[70vh] overflow-y-auto pt-1">
-            <span v-for="item, idx in filterItems" @click="chooseFilter(paneFor, item)" :class="getTypesColor(item, idx)"
-                class="grow basis-[248px] min-h-[2.5rem] transition duration-300
-                cursor-pointer px-5 rounded-[.65rem] text-slate-800 font-semibold text-center grid place-items-center">
-                {{ paneFor == 'type' ? `Tampilkan ${typesLabel(idx, item)}` : item }}</span>
-        </div>
-        <!-- For Confirm -->
-        <div v-if="paneFor == 'confirm'" class="px-5 [&>*]:w-full h-fit max-h-[70vh] pt-1 flex flex-col gap-5">
-            <b class="text-center text-slate-800">
-                Apakah kamu yakin ingin menghapus <span class="capitalize">{{ confirmData[confirmType].text }}</span> dari
-                Favorit ?</b>
-            <div class="flex flex-wrap gap-3 [&>*]:w-full">
-                <button v-for="text, idx in ['Batalkan', 'Ya, Hapus']" @click="onFavouriteConfirm(idx)" class="grow basis-[120px]
-                min-h-[2.5rem] transition duration-300 font-semibold rounded-md first:bg-slate-300/80 hover:first:bg-slate-300/90
-                active:first:bg-slate-300 first:text-slate-800 last:bg-fill-1/80 hover:last:bg-fill-1/90 active:last:bg-fill-1
-                last:text-white">{{ text }}</button>
-            </div>
-        </div>
-    </BottomPaneWrapper>
+    <MobileMainPane v-if="screenWidth < 768" v-model="paneIsOpen[paneFor]" :pane-for="paneFor" :filter-items="filterItems"
+        :text="mobPaneText" @choose-filter="chooseFilter" @confirm="onFavouriteConfirm" />
+    <!-- Modal -->
+    <Modal v-if="screenWidth >= 768" theme="danger" confirm-text="Ya, Hapus" mode="reverse"
+        v-model:open="paneIsOpen['confirm']" @confirm="onFavouriteConfirm(1)">
+        <b class="text-center text-slate-800 font-semibold">
+            Apakah kamu yakin ingin menghapus <span class="capitalize">{{ confirmData['beranda'].text }}</span> dari
+            <span class="capitalize">{{ forPokedex }}</span> ?</b>
+    </Modal>
     <!-- splash screen -->
-    <div id="domsplash" :style="{ transform: `translateX(${hideSplash ? 100 : 0}%)` }"
-        class="w-full h-screen top-0 flex justify-center items-center fixed bg-white transition duration-500 z-[10]">
-        <img src="@/assets/logo.svg" width="500" height="184" class="w-[70vw] max-w-[500px]" alt="logo">
-    </div>
+    <SplashScreen :error="err_network" @action="netErrAction"
+        :style="{ transform: `translate${screenHeight > screenWidth ? 'X' : 'Y'}(${hideSplash ? 100 : 0}%)` }" />
 </template>
 
 <style scoped>
 .filter::-webkit-scrollbar {
     display: none;
-}
-
-.pokedex:deep(#pokedex) {
-    padding-top: 3.5rem;
 }
 </style>

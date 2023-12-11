@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { toRefs, computed } from "@vue/reactivity";
 import type { PropType, SVGAttributes } from "vue";
-import type { Pokemon, Favourite, MyPokemon } from "../../types";
+import type { Pokemon, Favourite } from "../../types";
 import TypeIcon from "../TypeIcon.vue";
-import { Gym, ExpandLines, PineTree, Archery, Female, Male, InfoCircle } from "@iconoir/vue";
+import { Gym, ExpandLines, Extrude, Archery, Female, Male, InfoCircle } from "@iconoir/vue";
 
 const props = defineProps({
     data: {
@@ -14,19 +14,19 @@ const props = defineProps({
         type: Object as PropType<Favourite>,
         default: { id: '0002', state: true, date: '11/21/2023' }
     },
-    catched: {
-        type: Object as PropType<{ state: boolean, date: string }>,
-        default: { state: true, date: '11/21/2023' }
+    info: {
+        type: String as PropType<string>,
+        default: ''
     }
 })
 
-const { data, favourite, catched } = toRefs(props)
+const { data, favourite, info } = toRefs(props)
 
 const iconHeight = (type: string) => type == 'ground' ? 14 : type == 'rock' || type == 'flying' ? 15 : 18;
 
 const transformedDetail = computed(() => {
-    const icons = [Gym, ExpandLines, PineTree, Archery]
-    const labels = ['berat', 'tinggi', 'sebaran', 'kemampuan']
+    const icons = [Gym, ExpandLines, Extrude, Archery]
+    const labels = ['berat', 'tinggi', 'pengalaman dasar', 'kemampuan']
     const temp = data.value.detail as Record<string, any>
     return Object.fromEntries(Object.keys(temp).map((d, idx) => {
         let value: string;
@@ -42,24 +42,19 @@ const transformedGender = computed((): Record<string, { value: number, icon: (pr
         male: { value: 100 - (data.value.femalePossibility * 100), icon: Male }
     }
 })
-
-const infoText = computed(() => {
-    if (catched.value.state) return `Pokemon ini telah berhasil ditangkap pada ${catched.value.date}`;
-    else return 'Tekan pada gambar pokemon untuk menangkapnya!'
-})
 </script>
 
 <template>
     <div class="z-[10]">
-        <div v-if="catched.state" class="text-sm leading-[1.2rem] xs:text-base xs:leading-[1.4rem] p-3 bg-sky-500/20 rounded-xl
-                font-medium flex items-center gap-2.5 mb-2.5 text-slate-800">
+        <div class="text-sm leading-[1.2rem] xs:text-base xs:leading-[1.4rem] p-3 bg-sky-500/20 rounded-xl
+                font-medium flex items-center gap-2.5 mb-2.5 text-slate-800 sm:hidden">
             <i class="w-7">
                 <InfoCircle color="rgb(30,41,59)" width="28" height="28" stroke-width="2px" />
             </i>
-            <span>{{ infoText }}</span>
+            <span>{{ info }}</span>
         </div>
         <h1 class="text-xl font-bold text-slate-800 capitalize">{{ data.name }}</h1>
-        <span class="font-medium text-slate-800">Terindeks ke-{{ data.id }}</span>
+        <span class="font-medium text-slate-800">Terindeks ke-{{ Number(data.id) }}</span>
         <p v-if="favourite.state" class="text-sm text-dragon-1 font-medium">Difavoritkan pada {{ favourite.date }}</p>
     </div>
     <div class="flex gap-2 items-center">
@@ -74,24 +69,33 @@ const infoText = computed(() => {
     </div>
     <p class="text-sm text-slate-700">{{ data.description }}</p>
     <div class="flex flex-wrap gap-y-3 gap-x-4">
-        <div v-for="detail in Object.keys(transformedDetail)" class="flex flex-col gap-1 grow basis-28">
+        <div v-for="detail in Object.keys(transformedDetail)"
+            class="flex flex-col gap-1 grow basis-40 min-w-fit overflow-hidden">
             <div class="flex gap-2 items-center">
                 <component :is="transformedDetail[detail].icon" color="rgb(51,65,85)" width="16" height="16"
                     stroke-width="2"></component>
-                <span class="text-slate-700 font-medium text-sm uppercase">{{ detail }}</span>
+                <span class="text-slate-700 font-medium text-sm uppercase overflow-hidden text-ellipsis whitespace-nowrap">
+                    {{ detail }}</span>
             </div>
-            <span
-                class="h-10 font-semibold rounded-lg grid place-items-center text-lg text-slate-800 border-2 border-slate-400 px-4 whitespace-nowrap">{{
-                    transformedDetail[detail].value }}</span>
+            <div
+                class="h-10 font-semibold rounded-lg grid place-items-center text-lg text-slate-800 border-2 border-slate-400">
+                <p class="whitespace-nowrap overflow-hidden text-ellipsis px-4 w-full text-center">
+                    {{ transformedDetail[detail].value }}
+                </p>
+            </div>
         </div>
     </div>
     <div class="flex flex-col items-center gap-1">
         <span class="text-slate-700 font-medium text-sm uppercase">Gender</span>
-        <div class="h-2 w-full rounded-[.25rem] bg-dragon-1 relative overflow-hidden">
+        <span v-if="data.femalePossibility < 0" class="text-slate-800 font-semibold text-sm text-center flex items-center
+            justify-center px-3 py-1.5 bg-electric-0 rounded-lg">
+            {{ data.femalePossibility == -1 ? 'Pokemon ini tidak berkelamin.' : 'Gender pokemon ini belum diketahui.' }}
+        </span>
+        <div v-if="data.femalePossibility >= 0" class="h-2 w-full rounded-[.25rem] bg-dragon-1 relative overflow-hidden">
             <div class="absolute h-full bg-fairy-1" :style="{ width: `${transformedGender['female'].value}%` }">
             </div>
         </div>
-        <div class="flex mt-1 items-center justify-between w-full">
+        <div v-if="data.femalePossibility >= 0" class="flex mt-1 items-center justify-between w-full">
             <span v-for="gender in Object.keys(transformedGender)"
                 class="flex items-center gap-1 first:flex-row last:flex-row-reverse">
                 <component :is="transformedGender[gender].icon" color="rgb(51,65,85)" width="18" height="18"

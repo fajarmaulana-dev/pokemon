@@ -42,7 +42,7 @@ const moveSlide = (e: any, param: { mobile: boolean } = { mobile: false }) => {
 
 <template>
     <div class="panelayer" :class="{ 'is-active': open }" @click="emit('update:open', false)"></div>
-    <div class="fixed bottom-0 bg-white w-full rounded-t-3xl transition select-none py-5 flex flex-col gap-4"
+    <div class="fixed bottom-0 bg-white w-full rounded-t-3xl transition select-none py-5 flex flex-col gap-2"
         :class="grab ? 'cursor-grabbing duration-0' : 'cursor-grab duration-500'" @mousedown="startSlide($event)"
         @mouseup="endSlide($event)" @touchstart.passive="startSlide($event, { mobile: true })"
         @touchend="endSlide($event, { mobile: true })" @mousemove="grab ? moveSlide($event) : false"

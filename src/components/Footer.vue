@@ -2,10 +2,21 @@
 import { HomeSimpleDoor, MapPin, Pokeball, Heart, ProfileCircle } from '@iconoir/vue';
 import { useMainStore } from "@/stores"
 import { storeToRefs } from 'pinia';
+import { toRefs } from '@vue/reactivity';
+import type { PropType } from 'vue';
 
-const emit = defineEmits(['pokedex'])
+const emit = defineEmits(['pokedex', 'login'])
 const store = useMainStore()
 const { page } = storeToRefs(store)
+
+const props = defineProps({
+    isLogin: {
+        type: Boolean as PropType<boolean>,
+        default: true
+    },
+})
+
+const { isLogin } = toRefs(props)
 
 const menus = [
     { name: 'beranda', icon: HomeSimpleDoor },
@@ -17,7 +28,7 @@ const menus = [
 
 const handleMenuClick = (idx: number) => {
     const index = idx < 2 ? idx : idx - 1;
-    if (idx == 2) emit('pokedex');
+    if (idx == 2) isLogin.value ? emit('pokedex') : emit('login');
     else store.$patch({ page: { name: menus[idx].name, index } })
 }
 const activeMenu = (idx: number) => idx == 2 ? false : idx < 2 ? page.value.index == idx : page.value.index == idx - 1

@@ -40,4 +40,12 @@ class Ripple {
   }
 }
 
-export { overflowHandler, getAssets, imageSource, slider, Ripple };
+// to get initial of a name
+const extractName = (name: string) =>
+  name
+    .split(' ')
+    .map((i) => i[0])
+    .slice(0, 2)
+    .join('');
+
+export { overflowHandler, getAssets, imageSource, slider, Ripple, extractName };

@@ -24,8 +24,6 @@ import type { PokemonCard, PokemonCardAction, Favourite } from "@/types";
 
 // use open emit to do an action when click the card
 
-// use closeActions emit to close
-
 // use actions to add some actions for each card
 // to perform the each action, please use action emit that provide the label of clicked button and index of the card
 // just don't add actions to the child if you want to negate the actions with all its feature
@@ -33,6 +31,8 @@ import type { PokemonCard, PokemonCardAction, Favourite } from "@/types";
     if you set async attribute to true, you should to set actions value as reactive
     then fill the load attribute with false value as many as the length of data
 */
+
+// use confirm to open confirmation pane on unfavourite action
 
 // use slide to get access for open the actions menu from child
 
@@ -72,9 +72,13 @@ const props = defineProps({
         type: Object as PropType<{ state: boolean, index: number }>,
         default: { state: false, index: 0 }
     },
+    isMain: {
+        type: Boolean as PropType<boolean>,
+        default: false
+    }
 })
 
-const { slide, heart, data, actions, loadmore, catched, confirm } = toRefs(props)
+const { slide, heart, data, actions, loadmore, catched, confirm, isMain } = toRefs(props)
 
 const loadHeart = ref(Array(data.value.length).fill(false))
 const openload = ref(Array(data.value.length).fill(false))
@@ -89,12 +93,12 @@ const handleOpen = (index: number) => {
     emit('open', { index, endload: () => openload.value[index] = false })
 }
 
-watch(confirm, () => {
+watch(() => confirm.value.state, () => {
     if (confirm.value.state) {
         handleFavourite(confirm.value.index)
         emit('update:confirm', { state: false, index: 0 })
     }
-}, { deep: true })
+})
 
 const actWrapperColor = computed(() => {
     if (actions.value.length > 0) {
@@ -135,7 +139,7 @@ const endSlide = (e: any, param: { mobile?: boolean, index?: number } = { mobile
         <i class="w-7">
             <InfoCircle color="rgb(30,41,59)" width="28" height="28" stroke-width="2px" />
         </i>
-        <span>Geser gambar pokemon pada kartu untuk membuka menu aksi</span>
+        <span>Geser gambar pokemon pada kartu ke arah kiri untuk membuka menu aksi</span>
     </div>
     <div class="flex flex-wrap gap-4 xs:gap-5">
         <div v-for="pokemon, idx in data" :class="actWrapperColor" class="wrapper bg-gradient-to-b relative h-32
@@ -144,7 +148,7 @@ const endSlide = (e: any, param: { mobile?: boolean, index?: number } = { mobile
             <article class="flex z-[1] relative rounded-2xl transition duration-500 select-none"
                 :class="`bg-${pokemon.types[0]}-0`"
                 :style="{ transform: `translateX(-${slide[idx] ? 4 * Math.ceil(actions.length / 2) : 0}rem)` }">
-                <CardContent :data="pokemon" @open="handleOpen(idx)" :openload="openload[idx]" />
+                <CardContent :data="pokemon" @open="handleOpen(idx)" :openload="openload[idx]" :is-main="isMain" />
                 <CardImage :data="pokemon" :index="idx" :heart="heart" :loading="loadHeart[idx]" :grab="grab"
                     :catched="catched.includes(pokemon.id)" :action-length="actions.length"
                     @heart="heart[idx].state ? emit('confirm', { index: idx }) : handleFavourite(idx)"

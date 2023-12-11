@@ -19,12 +19,14 @@ const iconHeight = (type: string, big: boolean = true) => {
     if (big) return type == 'ground' ? 14 : type == 'rock' || type == 'flying' ? 15 : 18;
     else return type == 'ground' ? 11 : type == 'rock' || type == 'flying' ? 12 : 15;
 }
+
+const headStyle = 'text-lg font-semibold mb-2 text-center uppercase w-full text-slate-800';
 </script>
 
 <template>
     <div class="mt-4">
-        <h3 class="text-lg font-semibold mb-2 text-center uppercase">Kelemahan</h3>
-        <div class="flex flex-wrap gap-4 items-center justify-center">
+        <div :class="[data.weakness.length > 1 ? 'mb-2' : 'mb-1', headStyle]">Kelemahan</div>
+        <div v-if="data.weakness.length > 0" class="flex flex-wrap gap-4 items-center justify-center">
             <div v-for="poketype in data.weakness" :class="`bg-${poketype}-1`"
                 class="h-10 w-fit basis-28 flex items-center gap-[.4rem] p-1 pr-[.8rem] rounded-[20px]">
                 <div class="h-8 w-8 bg-white rounded-full grid place-items-center">
@@ -34,10 +36,11 @@ const iconHeight = (type: string, big: boolean = true) => {
                     {{ poketype }}</span>
             </div>
         </div>
+        <p v-else class="text-center text-slate-800 text-sm">Pokemon ini tidak memiliki kelemahan.</p>
     </div>
     <div class="mt-4 pb-4">
-        <h3 class="text-lg font-semibold mb-2.5 text-center uppercase">Evolusi</h3>
-        <div class="flex flex-col justify-center items-center gap-2.5">
+        <div :class="[data.evolution.length > 1 ? 'mb-2.5' : 'mb-1', headStyle]">Evolusi</div>
+        <div v-if="data.evolution.length > 1" class="flex flex-col justify-center items-center gap-2.5">
             <div v-for="ev, i in data.evolution" class="flex flex-col items-center">
                 <div v-if="i !== 0" class="flex flex-col items-center mb-2.5">
                     <b class="text-slate-700">Min Level</b>
@@ -66,5 +69,6 @@ const iconHeight = (type: string, big: boolean = true) => {
                 </div>
             </div>
         </div>
+        <p v-else class="text-center text-slate-800 text-sm">Pokemon ini tidak memiliki rantai evolusi.</p>
     </div>
 </template>

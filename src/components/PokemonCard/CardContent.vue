@@ -16,10 +16,14 @@ const props = defineProps({
     openload: {
         type: Boolean as PropType<boolean>,
         default: false
+    },
+    isMain: {
+        type: Boolean as PropType<boolean>,
+        default: false
     }
 })
 
-const { data, openload } = toRefs(props)
+const { data, openload, isMain } = toRefs(props)
 
 const iconHeight = (type: string) => type == 'ground' ? 11 : type == 'rock' || type == 'flying' ? 12 : 15
 const ripple = ref<any>()
@@ -30,21 +34,22 @@ const rippleEnd = (index: number) => ripples.value = new Ripple(ripple.value, ri
 </script>
 
 <template>
-    <div ref="ripple" @click="animateRipple($event); emit('open')" class="w-[calc(100%-8rem)] xx:w-[calc(100%-8rem)] p-4
+    <div ref="ripple" @click="animateRipple($event); emit('open')" class="w-[calc(100%-8rem)] p-4
     text-slate-800 cursor-pointer overflow-hidden relative [&>*:not(section)]:relative [&>*:not(section)]:z-[10]">
         <div class="flex items-center gap-2">
-            <b class="text-sm xx:text-base font-semibold">No. {{ data.id }}</b>
+            <b class="text-sm xx:text-base font-semibold md:text-sm lg:text-base">No. {{ data.id }}</b>
             <Spinner v-if="openload" is="lazy-ring" :width="16" stroke="stroke-slate-800" />
         </div>
-        <h4 class="font-bold !text-base xx:!text-lg xs:!text-xl mb-3 capitalize whitespace-nowrap overflow-hidden
-            text-ellipsis">{{ data.name }}</h4>
+        <h4 class="font-bold !text-base xx:!text-lg xs:!text-xl md:!text-base lg:!text-lg xl:!text-xl mb-3 capitalize
+            whitespace-nowrap overflow-hidden text-ellipsis">{{ data.name }}</h4>
         <div class="flex gap-2 items-center">
-            <div v-for="poketype in data.types" :class="`bg-${poketype}-1`"
-                class="h-8 w-fit flex items-center gap-[.3rem] p-1 pr-1 xs:pr-[.6rem] rounded-[1rem]">
+            <div v-for="poketype in data.types" :class="[`bg-${poketype}-1`, isMain ? 'lg:pr-[.6rem]' : '2xl:pr-[.6rem]']"
+                class="h-8 w-fit flex items-center gap-[.3rem] p-1 xs:pr-[.6rem] md:pr-1 rounded-[1rem]">
                 <div class="h-6 w-6 bg-white rounded-full grid place-items-center">
                     <TypeIcon :is="poketype" :height="iconHeight(poketype)" />
                 </div>
-                <span class="hidden xs:block text-white text-xs font-semibold drop-shadow capitalize">
+                <span :class="isMain ? 'lg:block' : '2xl:block'"
+                    class="hidden xs:block md:hidden text-white text-xs font-semibold drop-shadow capitalize">
                     {{ poketype }}</span>
             </div>
         </div>

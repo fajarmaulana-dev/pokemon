@@ -10,7 +10,7 @@ interface Pokemons {
     abilities: string[];
     weight: string;
     height: string;
-    spread: string[];
+    experience: string;
   };
   femalePossibility: number;
   weakness: string[];
@@ -27,8 +27,6 @@ interface Favourite {
 }
 
 type MyPokemon = Omit<Favourite, 'state'>;
-
-type Images = Pick<Pokemons, 'id' | 'image'>;
 
 interface Filter {
   search: string;
@@ -47,13 +45,27 @@ interface PokemonCardAction {
   load?: boolean[];
 }
 
+type Spread = Record<string, string[]>;
+
+interface Names {
+  id: string;
+  name: string;
+}
+
+interface Genders {
+  name: string;
+  possibility: number;
+}
+
 export type {
   Pokemons,
   PokemonCard,
   Pokemon,
-  Images,
   Filter,
   Favourite,
   MyPokemon,
   PokemonCardAction,
+  Spread,
+  Names,
+  Genders,
 };

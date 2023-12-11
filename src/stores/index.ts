@@ -1,31 +1,9 @@
 import { ref, computed } from '@vue/reactivity';
 import { defineStore } from 'pinia';
-import type { PokemonCard, Favourite, MyPokemon } from '../types';
+import type { PokemonCard, Favourite, MyPokemon, Spread, Genders, Names } from '../types';
 
 export const useMainStore = defineStore('main', () => {
-  const pokemons = ref<PokemonCard[]>([]);
-
-  const favourites = ref<Favourite[]>([]);
-
-  const myPokemon = ref<MyPokemon[]>([]);
-
-  // filter for regions using static images, that is why we must define the list for regions manually
-  // if any update for regions, just change this array and static image for the added region
-  const regions = ref<string[]>([
-    'kanto',
-    'johto',
-    'hoenn',
-    'sinnoh',
-    'unova',
-    'kalos',
-    'alola',
-    'galar',
-    'hisui',
-    'paldea',
-  ]);
-
-  // same argument as above
-  const types = ref<string[]>([
+  const typeName = [
     'grass',
     'poison',
     'fire',
@@ -44,31 +22,635 @@ export const useMainStore = defineStore('main', () => {
     'dark',
     'ghost',
     'ice',
-  ]);
-
-  const justFavourite = computed(() =>
-    favourites.value.filter((data) => data.state).map((data) => data.id),
+  ];
+  const favourites = ref<Favourite[]>([]);
+  const favouriteType = ref<Record<string, number>>(
+    Object.fromEntries(typeName.map((t) => [t, 0])),
   );
 
-  const favouriteData = computed(() =>
-    pokemons.value.filter((data) => justFavourite.value.includes(data.id)),
+  const myPokemon = ref<MyPokemon[]>([]);
+  const myPokemonType = ref<Record<string, number>>(
+    Object.fromEntries(typeName.map((t) => [t, 0])),
   );
 
-  const pokedexData = computed(() =>
-    pokemons.value.filter((data) => myPokemon.value.map((d) => d.id).includes(data.id)),
-  );
+  const names = ref<Names[]>([]);
+  const genders = ref<Genders[]>([]);
+
+  // filter for regions using static images, that is why we must define the list for regions manually
+  // if any update for regions, just change this array and static image for the added region
+  const regions = ref<Spread>({
+    kanto: [],
+    johto: [],
+    hoenn: [],
+    sinnoh: [],
+    unova: [],
+    kalos: [],
+    alola: [],
+    galar: [],
+    hisui: [],
+    paldea: [],
+  });
+
+  // same argument as above
+  const types = ref<Spread>(Object.fromEntries(typeName.map((t) => [t, []])));
 
   const page = ref<{ name: string; index: number }>({ name: 'beranda', index: 0 });
 
+  const pokemons = ref<PokemonCard[]>([
+    {
+      id: '0001',
+      name: 'bulbasaur',
+      types: ['grass', 'poison'],
+      image: 'alola-01.avif',
+      spread: ['kanto', 'johto', 'kalos', 'galar'],
+    },
+    {
+      id: '0002',
+      name: 'ivyasaur',
+      types: ['grass', 'poison'],
+      image: 'alola-02.avif',
+      spread: ['kanto', 'johto', 'kalos', 'galar'],
+    },
+    {
+      id: '0003',
+      name: 'venusaur',
+      types: ['grass', 'poison'],
+      image: 'alola-03.avif',
+      spread: ['kanto', 'johto', 'kalos', 'galar'],
+    },
+    {
+      id: '0004',
+      name: 'charmander',
+      types: ['fire'],
+      image: 'galar-01.avif',
+      spread: ['kanto', 'johto', 'kalos', 'galar'],
+    },
+    {
+      id: '0005',
+      name: 'charmeleon',
+      types: ['fire'],
+      image: 'galar-02.avif',
+      spread: ['kanto', 'johto', 'kalos', 'galar'],
+    },
+    {
+      id: '0006',
+      name: 'charizard',
+      types: ['fire', 'flying'],
+      image: 'galar-03.avif',
+      spread: ['kanto', 'johto', 'kalos', 'galar'],
+    },
+    {
+      id: '0007',
+      name: 'squirtle',
+      types: ['water'],
+      image: 'hisui-01.avif',
+      spread: ['kanto', 'johto'],
+    },
+    {
+      id: '0008',
+      name: 'wartortle',
+      types: ['water'],
+      image: 'hisui-02.avif',
+      spread: ['kanto', 'johto', 'kalos', 'galar'],
+    },
+    {
+      id: '0009',
+      name: 'blastoise',
+      types: ['water'],
+      image: 'hisui-03.avif',
+      spread: ['kanto', 'johto', 'kalos', 'galar'],
+    },
+    {
+      id: '0010',
+      name: 'caterpie',
+      types: ['bug'],
+      image: 'hoenn-01.avif',
+      spread: ['kanto', 'johto', 'kalos', 'alola', 'galar'],
+    },
+    {
+      id: '0011',
+      name: 'metapod',
+      types: ['bug'],
+      image: 'hoenn-02.avif',
+      spread: ['kanto', 'johto', 'kalos', 'alola', 'galar'],
+    },
+    {
+      id: '0012',
+      name: 'butterfree',
+      types: ['bug', 'flying'],
+      image: 'hoenn-03.avif',
+      spread: ['kanto', 'johto', 'kalos', 'alola', 'galar'],
+    },
+    {
+      id: '0013',
+      name: 'weedle',
+      types: ['bug', 'poison'],
+      image: 'johto-01.avif',
+      spread: ['kanto', 'johto', 'kalos'],
+    },
+    {
+      id: '0014',
+      name: 'kakuna',
+      types: ['bug', 'poison'],
+      image: 'johto-02.avif',
+      spread: ['kanto', 'johto', 'kalos'],
+    },
+    {
+      id: '0015',
+      name: 'beedrill',
+      types: ['bug', 'poison'],
+      image: 'johto-03.avif',
+      spread: ['kanto', 'johto', 'kalos'],
+    },
+    {
+      id: '0016',
+      name: 'pidgey',
+      types: ['normal', 'flying'],
+      image: 'kanto-01.avif',
+      spread: ['kanto', 'johto', 'kalos'],
+    },
+    {
+      id: '0017',
+      name: 'pidgeotto',
+      types: ['normal', 'flying'],
+      image: 'kanto-02.avif',
+      spread: ['kanto', 'johto', 'kalos'],
+    },
+    {
+      id: '0018',
+      name: 'pidgeot',
+      types: ['normal', 'flying'],
+      image: 'kanto-03.avif',
+      spread: ['kanto', 'johto', 'kalos'],
+    },
+    {
+      id: '0019',
+      name: 'rattata',
+      types: ['normal'],
+      image: 'paldea-01.avif',
+      spread: ['kanto', 'johto', 'unova', 'alola'],
+    },
+    {
+      id: '0020',
+      name: 'raticate',
+      types: ['normal'],
+      image: 'paldea-02.avif',
+      spread: ['kanto', 'johto', 'unova', 'alola'],
+    },
+    {
+      id: '0021',
+      name: 'spearow',
+      types: ['normal', 'flying'],
+      image: 'paldea-03.avif',
+      spread: ['kanto', 'johto', 'kalos', 'alola'],
+    },
+    {
+      id: '0022',
+      name: 'fearow',
+      types: ['normal', 'flying'],
+      image: 'sinnoh-01.avif',
+      spread: ['kanto', 'johto', 'kalos', 'alola'],
+    },
+    {
+      id: '0023',
+      name: 'ekans',
+      types: ['poison'],
+      image: 'sinnoh-02.avif',
+      spread: ['kanto', 'johto', 'kalos', 'alola', 'paldea'],
+    },
+    {
+      id: '0024',
+      name: 'arbok',
+      types: ['poison'],
+      image: 'sinnoh-03.avif',
+      spread: ['kanto', 'johto', 'kalos', 'alola', 'paldea'],
+    },
+    {
+      id: '0025',
+      name: 'pikachu',
+      types: ['electric'],
+      image: 'unova-01.avif',
+      spread: ['kanto', 'johto', 'hoenn', 'sinnoh', 'kalos', 'alola', 'galar', 'hisui', 'paldea'],
+    },
+    {
+      id: '0026',
+      name: 'raichu',
+      types: ['electric'],
+      image: 'unova-02.avif',
+      spread: ['kanto', 'johto', 'hoenn', 'sinnoh', 'kalos', 'alola', 'galar', 'hisui', 'paldea'],
+    },
+    {
+      id: '0027',
+      name: 'sandshrew',
+      types: ['ground'],
+      image: 'unova-03.avif',
+      spread: ['kanto', 'johto', 'hoenn', 'unova', 'kalos', 'alola', 'galar', 'paldea'],
+    },
+    {
+      id: '0028',
+      name: 'sandslash',
+      types: ['ground'],
+      image: 'alola-01.avif',
+      spread: ['kanto', 'johto', 'hoenn', 'unova', 'kalos', 'alola', 'galar', 'paldea'],
+    },
+    {
+      id: '0029',
+      name: 'nidoran-f',
+      types: ['poison'],
+      image: 'alola-02.avif',
+      spread: ['kanto', 'johto', 'kalos', 'galar'],
+    },
+    {
+      id: '0030',
+      name: 'nidorina',
+      types: ['poison'],
+      image: 'alola-03.avif',
+      spread: ['kanto', 'johto', 'kalos', 'galar'],
+    },
+    {
+      id: '0031',
+      name: 'nidoqueen',
+      types: ['poison', 'ground'],
+      image: 'galar-01.avif',
+      spread: ['kanto', 'johto', 'kalos', 'galar'],
+    },
+    {
+      id: '0032',
+      name: 'nidoran-m',
+      types: ['poison'],
+      image: 'galar-02.avif',
+      spread: ['kanto', 'johto', 'kalos', 'galar'],
+    },
+    {
+      id: '0033',
+      name: 'nidorino',
+      types: ['poison'],
+      image: 'galar-03.avif',
+      spread: ['kanto', 'johto', 'kalos', 'galar'],
+    },
+    {
+      id: '0034',
+      name: 'nidoking',
+      types: ['poison', 'ground'],
+      image: 'hisui-01.avif',
+      spread: ['kanto', 'johto', 'kalos', 'galar'],
+    },
+    {
+      id: '0035',
+      name: 'clefairy',
+      types: ['fairy'],
+      image: 'hisui-02.avif',
+      spread: ['kanto', 'johto', 'sinnoh', 'unova', 'alola', 'galar', 'hisui', 'paldea'],
+    },
+    {
+      id: '0036',
+      name: 'clefable',
+      types: ['fairy'],
+      image: 'hisui-03.avif',
+      spread: ['kanto', 'johto', 'sinnoh', 'unova', 'alola', 'galar', 'hisui', 'paldea'],
+    },
+    {
+      id: '0037',
+      name: 'vulpix',
+      types: ['fire'],
+      image: 'hoenn-01.avif',
+      spread: ['kanto', 'johto', 'hoenn', 'unova', 'alola', 'galar', 'hisui', 'paldea'],
+    },
+    {
+      id: '0038',
+      name: 'ninetales',
+      types: ['fire'],
+      image: 'hoenn-02.avif',
+      spread: ['kanto', 'johto', 'hoenn', 'unova', 'alola', 'galar', 'hisui', 'paldea'],
+    },
+    {
+      id: '0039',
+      name: 'jigglypuff',
+      types: ['normal', 'fairy'],
+      image: 'hoenn-03.avif',
+      spread: ['kanto', 'johto', 'hoenn', 'unova', 'kalos', 'alola', 'galar', 'paldea'],
+    },
+    {
+      id: '0040',
+      name: 'wigglytuff',
+      types: ['normal', 'fairy'],
+      image: 'johto-01.avif',
+      spread: ['kanto', 'johto', 'hoenn', 'unova', 'kalos', 'alola', 'galar', 'paldea'],
+    },
+    {
+      id: '0041',
+      name: 'zubat',
+      types: ['poison', 'flying'],
+      image: 'johto-02.avif',
+      spread: ['kanto', 'johto', 'hoenn', 'sinnoh', 'unova', 'kalos', 'alola', 'galar', 'hisui'],
+    },
+    {
+      id: '0042',
+      name: 'golbat',
+      types: ['poison', 'flying'],
+      image: 'johto-03.avif',
+      spread: ['kanto', 'johto', 'hoenn', 'sinnoh', 'unova', 'kalos', 'alola', 'galar', 'hisui'],
+    },
+    {
+      id: '0043',
+      name: 'oddish',
+      types: ['grass', 'poison'],
+      image: 'kanto-01.avif',
+      spread: ['kanto', 'johto', 'hoenn', 'kalos', 'galar'],
+    },
+    {
+      id: '0044',
+      name: 'gloom',
+      types: ['grass', 'poison'],
+      image: 'kanto-02.avif',
+      spread: ['kanto', 'johto', 'hoenn', 'kalos', 'galar'],
+    },
+    {
+      id: '0045',
+      name: 'vileplume',
+      types: ['grass', 'poison'],
+      image: 'kanto-03.avif',
+      spread: ['kanto', 'johto', 'hoenn', 'kalos', 'galar'],
+    },
+    {
+      id: '0046',
+      name: 'paras',
+      types: ['bug', 'grass'],
+      image: 'paldea-01.avif',
+      spread: ['kanto', 'johto', 'alola', 'hisui'],
+    },
+    {
+      id: '0047',
+      name: 'parasect',
+      types: ['bug', 'grass'],
+      image: 'paldea-02.avif',
+      spread: ['kanto', 'johto', 'alola', 'hisui'],
+    },
+    {
+      id: '0048',
+      name: 'venonat',
+      types: ['bug', 'poison'],
+      image: 'paldea-03.avif',
+      spread: ['kanto', 'johto', 'paldea'],
+    },
+    {
+      id: '0049',
+      name: 'venomoth',
+      types: ['bug', 'poison'],
+      image: 'sinnoh-01.avif',
+      spread: ['kanto', 'johto', 'paldea'],
+    },
+    {
+      id: '0050',
+      name: 'diglett',
+      types: ['ground'],
+      image: 'sinnoh-02.avif',
+      spread: ['kanto', 'johto', 'kalos', 'alola', 'galar', 'paldea'],
+    },
+    {
+      id: '0051',
+      name: 'dugtrio',
+      types: ['ground'],
+      image: 'sinnoh-03.avif',
+      spread: ['kanto', 'johto', 'kalos', 'alola', 'galar', 'paldea'],
+    },
+    {
+      id: '0052',
+      name: 'meowth',
+      types: ['normal'],
+      image: 'unova-01.avif',
+      spread: ['kanto', 'johto', 'alola', 'galar', 'paldea'],
+    },
+    {
+      id: '0053',
+      name: 'persian',
+      types: ['normal'],
+      image: 'unova-02.avif',
+      spread: ['kanto', 'johto', 'alola', 'galar', 'paldea'],
+    },
+    {
+      id: '0054',
+      name: 'psyduck',
+      types: ['water'],
+      image: 'unova-03.avif',
+      spread: [
+        'kanto',
+        'johto',
+        'hoenn',
+        'sinnoh',
+        'unova',
+        'kalos',
+        'alola',
+        'galar',
+        'hisui',
+        'paldea',
+      ],
+    },
+    {
+      id: '0055',
+      name: 'golduck',
+      types: ['water'],
+      image: 'alola-01.avif',
+      spread: [
+        'kanto',
+        'johto',
+        'hoenn',
+        'sinnoh',
+        'unova',
+        'kalos',
+        'alola',
+        'galar',
+        'hisui',
+        'paldea',
+      ],
+    },
+    {
+      id: '0056',
+      name: 'mankey',
+      types: ['fighting'],
+      image: 'alola-02.avif',
+      spread: ['kanto', 'johto', 'alola', 'paldea'],
+    },
+    {
+      id: '0057',
+      name: 'primeape',
+      types: ['fighting'],
+      image: 'alola-03.avif',
+      spread: ['kanto', 'johto', 'alola', 'paldea'],
+    },
+    {
+      id: '0058',
+      name: 'growlithe',
+      types: ['fire'],
+      image: 'galar-01.avif',
+      spread: ['kanto', 'johto', 'unova', 'alola', 'galar', 'hisui', 'paldea'],
+    },
+    {
+      id: '0059',
+      name: 'arcanine',
+      types: ['fire'],
+      image: 'galar-02.avif',
+      spread: ['kanto', 'johto', 'unova', 'alola', 'galar', 'hisui', 'paldea'],
+    },
+    {
+      id: '0060',
+      name: 'poliwag',
+      types: ['water'],
+      image: 'galar-03.avif',
+      spread: ['kanto', 'johto', 'kalos', 'alola', 'galar', 'paldea'],
+    },
+    {
+      id: '0061',
+      name: 'poliwhirl',
+      types: ['water'],
+      image: 'hisui-01.avif',
+      spread: ['kanto', 'johto', 'kalos', 'alola', 'galar', 'paldea'],
+    },
+    {
+      id: '0062',
+      name: 'poliwrath',
+      types: ['water', 'fighting'],
+      image: 'hisui-02.avif',
+      spread: ['kanto', 'johto', 'kalos', 'alola', 'galar', 'paldea'],
+    },
+    {
+      id: '0063',
+      name: 'abra',
+      types: ['psychic'],
+      image: 'hisui-03.avif',
+      spread: ['kanto', 'johto', 'hoenn', 'sinnoh', 'kalos', 'alola', 'galar', 'hisui'],
+    },
+    {
+      id: '0064',
+      name: 'kadabra',
+      types: ['psychic'],
+      image: 'hoenn-01.avif',
+      spread: ['kanto', 'johto', 'hoenn', 'sinnoh', 'kalos', 'alola', 'galar', 'hisui'],
+    },
+    {
+      id: '0065',
+      name: 'alakazam',
+      types: ['psychic'],
+      image: 'hoenn-02.avif',
+      spread: ['kanto', 'johto', 'hoenn', 'sinnoh', 'kalos', 'alola', 'galar', 'hisui'],
+    },
+    {
+      id: '0066',
+      name: 'machop',
+      types: ['fighting'],
+      image: 'hoenn-03.avif',
+      spread: ['kanto', 'johto', 'hoenn', 'sinnoh', 'kalos', 'alola', 'galar', 'hisui'],
+    },
+    {
+      id: '0067',
+      name: 'machoke',
+      types: ['fighting'],
+      image: 'johto-01.avif',
+      spread: ['kanto', 'johto', 'hoenn', 'sinnoh', 'kalos', 'alola', 'galar', 'hisui'],
+    },
+    {
+      id: '0068',
+      name: 'machamp',
+      types: ['fighting'],
+      image: 'johto-02.avif',
+      spread: ['kanto', 'johto', 'hoenn', 'sinnoh', 'kalos', 'alola', 'galar', 'hisui'],
+    },
+    {
+      id: '0069',
+      name: 'bellsprout',
+      types: ['grass', 'poison'],
+      image: 'johto-03.avif',
+      spread: ['kanto', 'johto', 'kalos', 'paldea'],
+    },
+    {
+      id: '0070',
+      name: 'weepinbell',
+      types: ['grass', 'poison'],
+      image: 'kanto-01.avif',
+      spread: ['kanto', 'johto', 'kalos', 'paldea'],
+    },
+    {
+      id: '0071',
+      name: 'victreebel',
+      types: ['grass', 'poison'],
+      image: 'kanto-02.avif',
+      spread: ['kanto', 'johto', 'kalos', 'paldea'],
+    },
+    {
+      id: '0072',
+      name: 'tentacool',
+      types: ['water', 'poison'],
+      image: 'kanto-03.avif',
+      spread: ['kanto', 'johto', 'hoenn', 'sinnoh', 'kalos', 'alola', 'galar', 'hisui'],
+    },
+    {
+      id: '0073',
+      name: 'tentacruel',
+      types: ['water', 'poison'],
+      image: 'paldea-01.avif',
+      spread: ['kanto', 'johto', 'hoenn', 'sinnoh', 'kalos', 'alola', 'galar', 'hisui'],
+    },
+    {
+      id: '0074',
+      name: 'geodude',
+      types: ['rock', 'ground'],
+      image: 'paldea-02.avif',
+      spread: ['kanto', 'johto', 'hoenn', 'sinnoh', 'kalos', 'alola', 'hisui', 'paldea'],
+    },
+    {
+      id: '0075',
+      name: 'graveler',
+      types: ['rock', 'ground'],
+      image: 'paldea-03.avif',
+      spread: ['kanto', 'johto', 'hoenn', 'sinnoh', 'kalos', 'alola', 'hisui', 'paldea'],
+    },
+    {
+      id: '0076',
+      name: 'golem',
+      types: ['rock', 'ground'],
+      image: 'sinnoh-01.avif',
+      spread: ['kanto', 'johto', 'hoenn', 'sinnoh', 'kalos', 'alola', 'hisui', 'paldea'],
+    },
+    {
+      id: '0077',
+      name: 'ponyta',
+      types: ['fire'],
+      image: 'sinnoh-02.avif',
+      spread: ['kanto', 'johto', 'sinnoh', 'galar', 'hisui'],
+    },
+    {
+      id: '0078',
+      name: 'rapidash',
+      types: ['fire'],
+      image: 'sinnoh-03.avif',
+      spread: ['kanto', 'johto', 'sinnoh', 'galar', 'hisui'],
+    },
+    {
+      id: '0079',
+      name: 'slowpoke',
+      types: ['water', 'psychic'],
+      image: 'unova-01.avif',
+      spread: ['kanto', 'johto', 'kalos', 'alola', 'galar', 'paldea'],
+    },
+    {
+      id: '0080',
+      name: 'slowbro',
+      types: ['water', 'psychic'],
+      image: 'unova-02.avif',
+      spread: ['kanto', 'johto', 'kalos', 'alola', 'galar', 'paldea'],
+    },
+  ]);
+
   return {
-    pokemons,
     favourites,
+    favouriteType,
+    myPokemon,
+    myPokemonType,
     regions,
     page,
     types,
-    myPokemon,
-    justFavourite,
-    favouriteData,
-    pokedexData,
+    names,
+    genders,
+    pokemons,
   };
 });

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { toRefs, computed, ref } from '@vue/reactivity';
+import { onMounted } from "@vue/runtime-core";
 import type { PropType } from 'vue';
 import type { PokemonCard } from "../../types"
 import { HeartSolid, Pokeball } from "@iconoir/vue";
@@ -43,10 +44,18 @@ const { data, heart, index, loading, grab, actionLength, catched } = toRefs(prop
 const bgIcon = computed(() => ['flying', 'rock', 'ground'].includes(data.value.types[0]) ? 6 : 7)
 const imageCursor = computed(() => actionLength.value == 0 ? 'cursor-default' : grab.value ? 'cursor-grabbing' : 'cursor-grab')
 const iconstyle = 'w-8 h-8 grid place-items-center border-[1px] border-white/80 rounded-full bg-white/20 backdrop-blur'
+
+const screenWidth = ref(window.innerWidth);
+onMounted(() => {
+    screenWidth.value = window.innerWidth;
+    window.addEventListener('resize', () => {
+        screenWidth.value = window.innerWidth;
+    })
+})
 </script>
 
 <template>
-    <div class="relative grid place-items-center h-32 w-32 xx:w-36 rounded-[.95rem]"
+    <div class="relative grid place-items-center h-32 w-32 xx:w-36 md:w-32 lg:w-36 rounded-[.95rem]"
         :class="[`bg-${data.types[0]}-1`, imageCursor]">
         <i :class="[{ 'is-marked': heart[index].state }, iconstyle]" @click="emit('heart')"
             class="absolute top-2 right-2 z-[1] cursor-pointer" v-if="heart.length > 0">
@@ -61,7 +70,8 @@ const iconstyle = 'w-8 h-8 grid place-items-center border-[1px] border-white/80 
             @touchstart.passive="e => emit('startTouch', { e, mobile: true })"
             @mouseup="e => emit('endTouch', { e, mobile: false })"
             @mousedown="e => emit('startTouch', { e, mobile: false })">
-            <img :src="imageSource(data.image)" alt="pokemon-image" height="96" class="absolute max-h-24 max-w-24">
+            <img :loading="screenWidth < 1280 ? 'eager' : 'lazy'" :src="imageSource(data.image)" alt="pokemon-image"
+                height="96" class="absolute max-h-24 max-w-24">
             <img :src="getAssets(`${data.types[0]}.avif`)" alt="type-icon" :style="{ maxHeight: `${bgIcon}rem` }">
         </div>
     </div>
