@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import Spinner from '../Spinner.vue';
-import { Heart, InfoCircle } from '@iconoir/vue';
+import { Heart, InfoCircle } from 'iconoir-vue/regular';
 import { imageSource } from '..';
 import { toRefs } from "@vue/reactivity";
 import type { PropType } from 'vue';
@@ -39,7 +39,8 @@ const { favourite, load, info, gif, type } = toRefs(props)
                 :class="{ 'is-marked': favourite }" @click="emit('heart')">
                 <i class="group-hover:scale-110 group-active:scale-90 transition duration-300">
                     <Spinner v-if="load" :width="32" fill="!fill-fill-1 !stroke-fill-1" />
-                    <Heart v-else color="#CD3131" width="32" height="32" stroke-width="2px" />
+                    <Heart v-else class="w-8 h-8 [&>*]:stroke-fill-1 [&>*]:transition [&>*]:duration-300"
+                        :class="favourite ? '[&>*]:stroke-1 [&>*]:fill-fill-1' : '[&>*]:stroke-2'" />
                 </i>
                 <div class="absolute -bottom-[1.3rem] left-[calc(50%-12px)] w-6 h-6 overflow-hidden rounded-[.325rem]">
                     <span
@@ -52,7 +53,7 @@ const { favourite, load, info, gif, type } = toRefs(props)
                 <div class="p-3 rounded-xl font-medium flex items-center gap-2.5 mt-6 text-white drop-shadow"
                     :class="`bg-${type}-1`">
                     <i class="w-7">
-                        <InfoCircle color="white" width="28" height="28" stroke-width="2px" />
+                        <InfoCircle class="w-7 h-7 [&>*]:stroke-2 [&>*]:stroke-white" />
                     </i>
                     <span class="drop-shadow">{{ info }}</span>
                 </div>
@@ -60,10 +61,3 @@ const { favourite, load, info, gif, type } = toRefs(props)
         </div>
     </div>
 </template>
-
-<style scoped>
-.is-marked:deep(path) {
-    fill: #CD3131;
-    stroke-width: 1;
-}
-</style>

@@ -4,7 +4,7 @@ import { toRefs } from "@vue/reactivity";
 import type { PropType } from "vue";
 import type { Pokemon } from "../../types";
 import TypeIcon from "../TypeIcon.vue";
-import { FastArrowDown } from "@iconoir/vue";
+import { FastArrowDown } from "iconoir-vue/regular";
 
 const props = defineProps({
     data: {
@@ -44,7 +44,7 @@ const headStyle = 'text-lg font-semibold mb-2 text-center uppercase w-full text-
             <div v-for="ev, i in data.evolution" class="flex flex-col items-center">
                 <div v-if="i !== 0" class="flex flex-col items-center mb-2.5">
                     <b class="text-slate-700">Min Level</b>
-                    <FastArrowDown width="28" height="28" color="rgb(30,41,59)" stroke-width="2" />
+                    <FastArrowDown class="w-7 h-7 [&>*]:stroke-slate-800 [&>*]:stroke-2" />
                     <b class="text-slate-700 text-xl">{{ ev.minLevel }}</b>
                 </div>
                 <div class="border-2 border-slate-400 rounded-2xl p-2 pr-4 xs:p-4">

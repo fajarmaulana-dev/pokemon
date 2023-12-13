@@ -34,11 +34,11 @@ const props = defineProps({
         default: false
     },
     prependIcon: {
-        type: Object as PropType<(props: SVGAttributes) => any>,
+        type: Function as PropType<(props: SVGAttributes) => any> || null,
         default: null
     },
     appendIcon: {
-        type: Object as PropType<(props: SVGAttributes) => any>,
+        type: Function as PropType<(props: SVGAttributes) => any> || null,
         default: null
     },
     fullText: {
@@ -54,7 +54,7 @@ const onInvalid = computed(() => {
     else return 'border-slate-500/80 hover:border-slate-500/90 focus:border-slate-600/90'
 })
 
-
+const iconStyle = 'h-[18px] w-[18px] [&>*]:stroke-[3] [&>*]:stroke-slate-500/90'
 </script>
 
 <template>
@@ -66,26 +66,13 @@ const onInvalid = computed(() => {
             { 'max-w-[480px] xs:focus:w-80 sm:w-full sm:focus:w-full md:min-w-full': !fullText }]" class="h-[40px] w-full outline-none border-2 transition
             duration-1000 pr-3 pl-9 rounded-full text-[15px] text-slate-800" />
         <i class="left-3 pointer-events-none top-[calc(50%-9px)]" v-if="prependIcon !== null">
-            <component :is="prependIcon" color="rgba(100,116,139,0.9)" height="18" width="18" stroke-width="3"></component>
+            <component :is="prependIcon" :class="iconStyle"></component>
         </i>
-        <i v-if="appendIcon !== null" @click="emit('appendClick')" class="append right-0 transition duration-300 cursor-pointer
+        <i v-if="appendIcon !== null" @click="emit('appendClick')" class="group right-0 transition duration-300 cursor-pointer
             flex items-center justify-center inset-y-0 w-10">
-            <component :is="appendIcon" height="18" width="18" stroke-width="3"></component>
+            <component :is="appendIcon" :class="iconStyle"
+                class="[&>*]:transition [&>*]:duration-[.4s] group-hover:[&>*]:stroke-slate-500 group-active:[&>*]:stroke-slate-500/90">
+            </component>
         </i>
     </div>
 </template>
-
-<style scoped>
-.append:deep(path) {
-    stroke: rgba(100, 116, 139, 0.9);
-    transition: .4s;
-}
-
-.append:hover :deep(path) {
-    stroke: rgb(100, 116, 139);
-}
-
-.append:active :deep(path) {
-    stroke: rgba(100, 116, 139, 0.9);
-}
-</style>

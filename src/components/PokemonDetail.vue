@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { toRefs, ref, reactive, computed } from "@vue/reactivity";
 import { watch, onMounted } from "@vue/runtime-core";
-import { ArrowLeft, Heart, Xmark } from "@iconoir/vue";
+import { ArrowLeft, Heart, Xmark } from "iconoir-vue/regular";
 import type { PropType } from "vue";
 import type { Pokemon, Favourite } from "@/types"
 import Basic from "./PokemonDetail/Basic.vue";
@@ -128,8 +128,8 @@ const transition = computed(() => {
                         class="w-9 h-9 first:-translate-x-1 last:translate-x-1 rounded-full grid place-items-center cursor-pointer bg-white/0
                     hover:bg-white/20 active:bg-white/10 transition duration-[.4s]">
                         <Spinner v-if="load.heart && i == 2" :width="20" fill="!fill-white !stroke-white" />
-                        <component v-else :is="i == 1 ? ArrowLeft : Heart" color="white" width="20" height="20"
-                            stroke-width="3">
+                        <component v-else :is="i == 1 ? ArrowLeft : Heart"
+                            class="w-5 h-5 [&>*]:stroke-[3] [&>*]:stroke-white">
                         </component>
                     </div>
                 </div>
@@ -140,7 +140,7 @@ const transition = computed(() => {
                     @catch="catched.state ? false : handleCatch()" />
                 <i class="absolute w-10 h-10 rounded-full grid place-items-center right-3 top-3 transition duration-300 cursor-pointer"
                     :class="closeStyle" @click="emit('update:sidePage', false)">
-                    <Xmark color="rgb(30,41,59)" width="30" height="30" />
+                    <Xmark class="w-[30px] h-[30px] [&>*]:stroke-slate-800" />
                 </i>
             </div>
             <div :style="{ marginTop: `${screenWidth < 640 ? topSideImage : 0}px` }"

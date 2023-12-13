@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import { toRefs, ref, computed } from '@vue/reactivity';
 import { onMounted, watch } from '@vue/runtime-core';
-import { NavArrowDown, Search, ArrowLeft } from '@iconoir/vue';
+import { NavArrowDown, Search, ArrowLeft } from 'iconoir-vue/regular';
 import type { PropType, SVGAttributes } from 'vue';
 import TextBox from './TextBox.vue';
 import Spinner from './Spinner.vue';
 import { useMainStore } from '@/stores';
 import { storeToRefs } from 'pinia';
-import { getTypesColor, typesLabel } from "./Func/method"
+import { getTypesColor, typesLabel } from "./Func/method";
 
 const emit = defineEmits(['update:text', 'back', 'openFilter', 'chooseRegion', 'allRegion', 'chooseFilter'])
 const props = defineProps({
@@ -125,7 +125,8 @@ const closeOptions = (type: string) => {
         <div class="px-4 pt-2 flex items-center translate-y-1">
             <i v-if="pageName.back" @click="emit('back')" class="w-7 h-7 -translate-x-1 rounded-full grid place-items-center cursor-pointer
                 bg-fill-0/0 hover:bg-fill-0/30 active:bg-fill-0/50 transition duration-[.4s]">
-                <component :is="pageName.icon" color="rgb(30,41,59)" height="15" width="15" stroke-width="4"></component>
+                <component :is="pageName.icon" class="h-[15px] w-[15px] [&>*]:stroke-slate-800 [&>*]:stroke-[4]">
+                </component>
             </i>
             <h1 v-if="pageName.text !== ''" class="text-lg font-bold text-slate-800 capitalize">{{ pageName.text }}
             </h1>
@@ -155,7 +156,7 @@ const closeOptions = (type: string) => {
                         {{ filter == 'type' ? label.type == '' ? 'semua tipe' : label.type : label.sort }}</span>
                     <Spinner v-if="load[filter]" class="pr-3 pl-2" is="lazy-ring" :width="20" stroke="stroke-slate-800" />
                     <i v-else class="pr-3 pl-2">
-                        <NavArrowDown color="rgb(30,41,59)" height="20" width="20" stroke-width="3" />
+                        <NavArrowDown class="h-5 w-5 [&>*]:stroke-[3] [&>*]:stroke-slate-800" />
                     </i>
                     <div v-if="screenWidth >= 768" class="absolute w-full scale-y-0 group-hover:scale-y-100 origin-top transition
                         duration-500 top-10 z-10 cursor-default min-w-fit">

@@ -27,7 +27,7 @@ const actColor = (color: { init: string, hover: string }) => `bg-${color.init} h
         <button v-for="act in actions" :class="actColor(act.color)" @click="emit('action', { label: act.label, index })"
             class="w-16 h-16 transition duration-[.4s] grid place-items-center grow cursor-pointer shadow-[.1rem_0_1px_1px] shadow-gray-100">
             <Spinner v-if="act.load && act.load[index]" :width="24" fill="!fill-white !stroke-white" />
-            <component v-else :is="act.icon" height="24" width="24" color="white" stroke-width="2"></component>
+            <component v-else :is="act.icon" class="h-6 w-6 [&>*]:stroke-white [&>*]:fill-white [&>*]:stroke-2"></component>
         </button>
     </div>
 </template>

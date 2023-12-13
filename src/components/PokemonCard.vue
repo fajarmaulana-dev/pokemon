@@ -5,7 +5,7 @@ import { watch } from "@vue/runtime-core";
 import CardContent from "./PokemonCard/CardContent.vue";
 import CardImage from "./PokemonCard/CardImage.vue";
 import CardActions from "./PokemonCard/CardActions.vue";
-import { InfoCircle } from "@iconoir/vue";
+import { InfoCircle } from "iconoir-vue/regular";
 import Spinner from "./Spinner.vue";
 import type { PropType } from "vue";
 import type { PokemonCard, PokemonCardAction, Favourite } from "@/types";
@@ -137,7 +137,7 @@ const endSlide = (e: any, param: { mobile?: boolean, index?: number } = { mobile
     <div v-if="actions.length > 0" class="text-sm leading-[1.2rem] xs:text-base xs:leading-[1.4rem] p-3 bg-sky-500/20 rounded-xl
         font-medium flex items-center gap-3.5 mb-4 text-slate-800">
         <i class="w-7">
-            <InfoCircle color="rgb(30,41,59)" width="28" height="28" stroke-width="2px" />
+            <InfoCircle class="w-7 h-7 [&>*]:stroke-slate-800 [&>*]:stroke-2" />
         </i>
         <span>Geser gambar pokemon pada kartu ke arah kiri untuk membuka menu aksi</span>
     </div>

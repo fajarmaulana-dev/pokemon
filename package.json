@@ -13,8 +13,8 @@
   },
   "dependencies": {
     "@fontsource/poppins": "^5.0.8",
-    "@iconoir/vue": "^7.0.2",
     "axios": "^1.6.2",
+    "iconoir-vue": "^7.0.0",
     "lodash.debounce": "^4.0.8",
     "pinia": "^2.1.7",
     "postcss": "^8.4.31",

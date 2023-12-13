@@ -3,7 +3,7 @@ import { toRefs, computed } from "@vue/reactivity";
 import type { PropType, SVGAttributes } from "vue";
 import type { Pokemon, Favourite } from "../../types";
 import TypeIcon from "../TypeIcon.vue";
-import { Gym, ExpandLines, Extrude, Archery, Female, Male, InfoCircle } from "@iconoir/vue";
+import { Gym, ExpandLines, Extrude, Archery, Female, Male, InfoCircle } from "iconoir-vue/regular";
 
 const props = defineProps({
     data: {
@@ -49,7 +49,7 @@ const transformedGender = computed((): Record<string, { value: number, icon: (pr
         <div class="text-sm leading-[1.2rem] xs:text-base xs:leading-[1.4rem] p-3 bg-sky-500/20 rounded-xl
                 font-medium flex items-center gap-2.5 mb-2.5 text-slate-800 sm:hidden">
             <i class="w-7">
-                <InfoCircle color="rgb(30,41,59)" width="28" height="28" stroke-width="2px" />
+                <InfoCircle class="w-7 h-7 [&>*]:stroke-2 [&>*]:stroke-slate-800" />
             </i>
             <span>{{ info }}</span>
         </div>
@@ -72,8 +72,8 @@ const transformedGender = computed((): Record<string, { value: number, icon: (pr
         <div v-for="detail in Object.keys(transformedDetail)"
             class="flex flex-col gap-1 grow basis-40 min-w-fit overflow-hidden">
             <div class="flex gap-2 items-center">
-                <component :is="transformedDetail[detail].icon" color="rgb(51,65,85)" width="16" height="16"
-                    stroke-width="2"></component>
+                <component :is="transformedDetail[detail].icon" class="w-4 h-4 [&>*]:stroke-2 [&>*]:stroke-slate-700">
+                </component>
                 <span class="text-slate-700 font-medium text-sm uppercase overflow-hidden text-ellipsis whitespace-nowrap">
                     {{ detail }}</span>
             </div>
@@ -98,8 +98,8 @@ const transformedGender = computed((): Record<string, { value: number, icon: (pr
         <div v-if="data.femalePossibility >= 0" class="flex mt-1 items-center justify-between w-full">
             <span v-for="gender in Object.keys(transformedGender)"
                 class="flex items-center gap-1 first:flex-row last:flex-row-reverse">
-                <component :is="transformedGender[gender].icon" color="rgb(51,65,85)" width="18" height="18"
-                    stroke-width="2"></component>
+                <component class="w-[18px] h-[18px] [&>*]:stroke-2 [&>*]:stroke-slate-700"
+                    :is="transformedGender[gender].icon"></component>
                 <span class="text-slate-700 text-sm">{{ transformedGender[gender].value }}%</span>
             </span>
         </div>

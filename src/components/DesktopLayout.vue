@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { FastArrowRight, HomeSimpleDoor, ProfileCircle, Edit, ShieldQuestion, KeyMinus, GoogleDocs, LogOut, LogIn } from "@iconoir/vue";
+import { FastArrowRight, HomeSimpleDoor, ProfileCircle, Edit, ShieldQuestion, KeyMinus, GoogleDocs, LogOut, LogIn } from "iconoir-vue/regular";
 import { ref, toRefs } from "@vue/reactivity";
 import type { PropType } from "vue";
 import { imageSource, extractName } from ".";
@@ -28,6 +28,13 @@ const menus = [
     { name: 'syarat dan ketentuan', icon: GoogleDocs },
     { name: 'kebijakan privasi', icon: ShieldQuestion },
 ]
+
+const menuStyle = (idx: number) => {
+    let isActive = false
+    if (idx >= 0 && page.value == idx) isActive = true
+    return `${isActive ? '[&>*]:stroke-slate-900' : '[&>*]:stroke-slate-800/80 group-hover:[&>*]:stroke-slate-900/90 group-active:[&>*]:stroke-slate-900'} [&>*]:transition [&>*]:duration-300`
+}
+const textStyle = (idx: number) => page.value == idx ? 'text-slate-800' : 'text-slate-800/80 group-hover:text-slate-800/90 group-active:text-slate-800'
 </script>
 
 <template>
@@ -58,8 +65,9 @@ const menus = [
                 <span class="absolute top-7 left-[18px] text-sm text-slate-700 tracking-widest font-bold transition
                 duration-200" :class="isExpanded ? 'opacity-100 delay-200' : 'opacity-0'">MENU</span>
                 <i :class="{ 'translate-x-56 rotate-180  duration-700': isExpanded }" @click="isExpanded = !isExpanded"
-                    class="menus arrow relative cursor-pointer w-16 h-10 grid place-items-center transition duration-300">
-                    <FastArrowRight color="rgb(30,41,59)" stroke-width="3" width="24" height="24" />
+                    class="group relative cursor-pointer w-16 h-10 grid place-items-center transition duration-300">
+                    <FastArrowRight class="w-6 h-6 transition duration-[.4s] group-hover:translate-x-1 [&>*]:stroke-[3]"
+                        :class="menuStyle(-1)" />
                 </i>
                 <div :class="isExpanded ? 'h-[calc(100vh-15.5rem)]' : 'h-[calc(100vh-8.5rem)]'"
                     class="flex w-full flex-col items-center justify-between mt-2 gap-3">
@@ -71,24 +79,25 @@ const menus = [
                                     class="w-4 h-4 bg-rose-200 absolute top-0"></span>
                             </span>
                         </span>
-                        <span v-for="menu, idx in menus" @click="page = idx" :class="{ 'is-active': page == idx }"
-                            class="menus w-full min-h-[4rem] flex items-center gap-4 px-[18px] relative cursor-pointer overflow-hidden">
+                        <span v-for="menu, idx in menus" @click="page = idx"
+                            class="group w-full min-h-[4rem] flex items-center gap-4 px-[18px] relative cursor-pointer overflow-hidden">
                             <i class="min-w-[28px]">
-                                <component :is="menu.icon" stroke-width="2" width="28" height="28">
+                                <component :is="menu.icon" class="w-7 h-7 [&>*]:stroke-2" :class="menuStyle(idx)">
                                 </component>
                             </i>
-                            <span :class="isExpanded ? 'opacity-100' : 'opacity-0'" style="transition: .5s;"
-                                class="text-slate-800/80 font-semibold capitalize whitespace-nowrap overflow-hidden transition duration-300">
-                                {{ menu.name }}</span>
+                            <span class="font-semibold capitalize whitespace-nowrap overflow-hidden transition duration-500"
+                                :class="[isExpanded ? 'opacity-100' : 'opacity-0', textStyle(idx)]">{{ menu.name }}</span>
                         </span>
                     </div>
-                    <span @click="emit('sign')" class="logout w-full min-h-[4rem] flex items-center gap-4 px-[18px] cursor-pointer
+                    <span @click="emit('sign')" class="group w-full min-h-[4rem] flex items-center gap-4 px-[18px] cursor-pointer
                         overflow-hidden">
                         <i class="min-w-[28px]">
-                            <component :is="isLogin ? LogOut : LogIn" stroke-width="2" width="28" height="28"></component>
+                            <component class="w-7 h-7 [&>*]:stroke-2 [&>*]:stroke-fill-1/80 group-hover:[&>*]:stroke-fill-1/90
+                                group-active:[&>*]:stroke-fill-1" :is="isLogin ? LogOut : LogIn"></component>
                         </i>
-                        <span :class="isExpanded ? 'opacity-100' : 'opacity-0'" style="transition: .5s;"
-                            class="text-fill-1/80 font-bold tracking-wider uppercase whitespace-nowrap overflow-hidden transition duration-300">
+                        <span class="text-fill-1/80 group-hover:text-fill-1/90 group-active:text-fill-1 font-bold tracking-wider
+                            uppercase whitespace-nowrap overflow-hidden transition duration-300"
+                            :class="isExpanded ? 'opacity-100' : 'opacity-0'" style="transition: .5s;">
                             {{ isLogin ? 'logout' : 'login' }}</span>
                     </span>
                 </div>
@@ -104,61 +113,5 @@ const menus = [
 <style scoped>
 .filter::-webkit-scrollbar {
     display: none;
-}
-
-.menus:deep(path) {
-    stroke: rgba(30, 41, 59, .8);
-    transition: .3s;
-}
-
-.menus:hover :deep(path) {
-    stroke: rgba(30, 41, 59, .9);
-}
-
-.menus:hover span {
-    color: rgba(30, 41, 59, .9);
-}
-
-.logout:deep(path) {
-    stroke: rgba(205, 49, 49, .8);
-    transition: .3s;
-}
-
-.logout:hover :deep(path) {
-    stroke: rgba(205, 49, 49, .9);
-}
-
-.logout:active :deep(path) {
-    stroke: rgba(205, 49, 49, 1);
-}
-
-.logout:hover span {
-    color: rgba(205, 49, 49, .9);
-}
-
-.logout:active span {
-    color: rgba(205, 49, 49, 1);
-}
-
-.menus:active span,
-.is-activespan,
-.is-active:hover span,
-.is-active:active span {
-    color: rgba(30, 41, 59, 1);
-}
-
-.menus:active :deep(path),
-.is-active:deep(path),
-.is-active:hover :deep(path),
-.is-active:active :deep(path) {
-    stroke: rgba(30, 41, 59, 1);
-}
-
-.arrow:deep(svg) {
-    transition: .4s;
-}
-
-.arrow:hover :deep(svg) {
-    transform: translateX(4px);
 }
 </style>

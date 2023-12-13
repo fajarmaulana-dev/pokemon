@@ -18,13 +18,13 @@ const props = defineProps({
         type: Array as PropType<string[]>,
         default: []
     },
-    text: {
-        type: Object as PropType<{ item: string, name: string }>,
-        default: { item: '', name: '' }
-    }
+    item: {
+        type: String as PropType<string>,
+        default: ''
+    },
 })
 
-const { modelValue, paneFor, filterItems, text } = toRefs(props)
+const { modelValue, paneFor, filterItems, item } = toRefs(props)
 </script>
 
 <template>
@@ -43,8 +43,8 @@ const { modelValue, paneFor, filterItems, text } = toRefs(props)
         <!-- For Confirm -->
         <div v-if="paneFor == 'confirm'" class="px-5 [&>*]:w-full h-fit max-h-[70vh] pt-1 flex flex-col gap-5">
             <b class="text-center text-slate-800">
-                Apakah kamu yakin ingin menghapus <span class="capitalize">{{ text.item }}</span>
-                dari <span class="capitalize">{{ text.name }}</span> ?</b>
+                Apakah kamu yakin ingin menghapus <span class="capitalize">{{ item }}</span>
+                dari <span class="capitalize">Favorit</span> ?</b>
             <div class="flex flex-wrap gap-3 [&>*]:w-full">
                 <button v-for="text, idx in ['Batalkan', 'Ya, Hapus']" @click="emit('confirm', idx)" class="grow basis-[120px] min-h-[2.5rem]
                     transition duration-300 font-semibold rounded-md first:bg-slate-300/80 hover:first:bg-slate-300/90

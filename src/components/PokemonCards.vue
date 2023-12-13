@@ -4,7 +4,7 @@ import type { PropType, SVGAttributes } from "vue";
 import PokeCard from "./PokemonCard.vue"
 import PokemonFilter from "./PokemonFilter.vue";
 import { toRefs, computed } from "@vue/reactivity";
-import { ArrowLeft } from "@iconoir/vue";
+import { ArrowLeft } from "iconoir-vue/regular";
 import NotFound from "~/NotFound.vue"
 
 const emit = defineEmits(['openCard', 'heart', 'update:slide', 'action', 'openFilter', 'update:text', 'back', 'update:onBottom', 'update:loadmore', 'confirm', 'update:confirm', 'chooseRegion', 'hover', 'allRegion', 'chooseFilter', 'refresh'])

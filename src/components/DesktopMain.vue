@@ -4,7 +4,7 @@ import PokemonCards from "./PokemonCards.vue";
 import { useMainStore } from "@/stores";
 import DesktopLayout from "./DesktopLayout.vue";
 import { storeToRefs } from 'pinia';
-import { ArrowLeft, Pokeball, Heart } from "@iconoir/vue";
+import { ArrowLeft, Pokeball, Heart } from "iconoir-vue/regular";
 import { toTop } from "./Func/method"
 import type { PropType, SVGAttributes } from "vue";
 import type { Favourite, Filter, PokemonCard, PokemonCardAction } from "@/types";
@@ -191,8 +191,8 @@ const types = computed(() => ['', ...models.value.availableType[forPokedex.value
                         <div @click="pokedexIsOpen = i == 0 ? true : false" class="z-[1]" style="transition: .5s;"
                             :class="[layerStyle.content, pokedexIsOpen ? i == 0 ? '-top-20' : 'bottom-0' : i == 0 ? 'top-0' : '-bottom-20']">
                             <span class="text-xl font-bold text-slate-800 capitalize">{{ name }}</span>
-                            <component :is="i == 0 ? Pokeball : Heart" color="rgb(30,41,59)" width="32" height="32"
-                                stroke-width="3"></component>
+                            <component :is="i == 0 ? Pokeball : Heart"
+                                class="w-8 h-8 [&>*]:stroke-slate-800 [&>*]:stroke-[3]"></component>
                         </div>
                     </div>
                 </div>

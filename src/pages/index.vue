@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, reactive } from "@vue/reactivity";
-import { onMounted, watch, inject } from "@vue/runtime-core";
+import { onMounted, watch } from "@vue/runtime-core";
 import DesktopMain from "~/DesktopMain.vue";
 import MobileMain from "~/MobileMain.vue";
 import MobileMainPane from "~/MobileMainPane.vue";
@@ -8,7 +8,8 @@ import SplashScreen from "~/SplashScreen.vue";
 import { useMainStore } from "@/stores"
 import PokemonDetail from "~/PokemonDetail.vue";
 import { storeToRefs } from 'pinia';
-import { TrashSolid, ArrowLeft } from "@iconoir/vue";
+import { ArrowLeft } from "iconoir-vue/regular";
+import { Trash } from "iconoir-vue/solid";
 import Modal from "~/Modal.vue"
 import type { PokemonCard, Pokemon, Favourite, Filter, MyPokemon, Names } from "@/types";
 import debounce from 'lodash.debounce';
@@ -16,8 +17,6 @@ import { doFilter, initData, getPokeDetail } from "~/Func/data";
 import Local from "../api/local"
 import { overflowHandler } from "~/.";
 import { toTop, filterFunc, setLocalData, getTypes, doHeart, doCatch } from "~/Func/method"
-
-// const trashsolid = inject('TrashSolid')
 
 const store = useMainStore()
 const { page, favourites, favouriteType, myPokemon, myPokemonType, regions, types, names, genders } = storeToRefs(store)
@@ -30,7 +29,7 @@ const regionPageName = reactive({ text: 'kanto', back: true, icon: ArrowLeft })
 const cardSlideState = reactive<Record<string, boolean[]>>({ favorit: [], pokedex: [] })
 
 // action list for cards in favourite and pokedex pages, learn more in PokemonCard.vue
-const cardActions = [{ label: 'remove', icon: TrashSolid, color: { init: 'rose-500', hover: 'rose-500/80' }, async: false }]
+const cardActions = [{ label: 'remove', icon: Trash, color: { init: 'rose-500', hover: 'rose-500/80' }, async: false }]
 
 const pokedex = ref(false)
 const forPokedex = computed(() => pokedex.value ? 'pokedex' : page.value.index < 3 ? page.value.name : 'favorit')
@@ -436,10 +435,6 @@ const unCatch = ({ index, id }: { index: number, id: string }) => {
     store.$patch({ myPokemon: myPokemon.value.filter((data) => data.id !== id), myPokemonType: tempType })
 }
 
-const mobPaneText = computed(() => {
-    return { item: confirmData[confirmType.value].text, name: forPokedex.value }
-})
-
 const cardConfirm = (data: { index: number, name: string }) => {
     confirmType.value = data.name;
     openConfirm({ index: data.index })
@@ -484,13 +479,13 @@ const refreshData = async () => {
         @confirm="({ index }) => { confirmType = 'detail'; openConfirm({ index }) }" @catch="handleCatch" />
     <!-- Pane -->
     <MobileMainPane v-if="screenWidth < 768" v-model="paneIsOpen[paneFor]" :pane-for="paneFor" :filter-items="filterItems"
-        :text="mobPaneText" @choose-filter="chooseFilter" @confirm="onFavouriteConfirm" />
+        :item="confirmData[confirmType].text" @choose-filter="chooseFilter" @confirm="onFavouriteConfirm" />
     <!-- Modal -->
     <Modal v-if="screenWidth >= 768" theme="danger" confirm-text="Ya, Hapus" mode="reverse"
         v-model:open="paneIsOpen['confirm']" @confirm="onFavouriteConfirm(1)">
         <b class="text-center text-slate-800 font-semibold">
             Apakah kamu yakin ingin menghapus <span class="capitalize">{{ confirmData['beranda'].text }}</span> dari
-            <span class="capitalize">{{ forPokedex }}</span> ?</b>
+            <span class="capitalize">Favorit</span> ?</b>
     </Modal>
     <!-- splash screen -->
     <SplashScreen :error="err_network" @action="netErrAction"

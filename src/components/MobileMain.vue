@@ -5,7 +5,7 @@ import Regions from "./Regions.vue";
 import Footer from "./Footer.vue";
 import { useMainStore } from "@/stores";
 import { storeToRefs } from 'pinia';
-import { ArrowLeft, Xmark } from "@iconoir/vue";
+import { ArrowLeft, Xmark } from "iconoir-vue/regular";
 import type { PropType, SVGAttributes } from "vue";
 import type { Favourite, Filter, PokemonCard, PokemonCardAction } from "@/types";
 
@@ -162,8 +162,15 @@ const models = computed(() => {
                 v-model:slide="models.cardSlideState['favorit']" />
         </section>
         <!-- Profil -->
-        <section class="bg-yellow-500">
-
+        <section class="bg-gray-200">
+            <div class="bg-white p-4 flex items-center gap-6 flex-col xx:flex-row">
+                <div class="min-w-[7rem] h-28 rounded-full bg-red-300"></div>
+                <div class="w-full h-full text-slate-800">
+                    <b class="font-bold text-xl">Selamat Datang!</b>
+                    <p class="font-semibold text-lg mt-2">Fajar Maulana</p>
+                    <em class="text-xs">m.fajars.net@gmail.com</em>
+                </div>
+            </div>
         </section>
     </div>
     <!-- Footer -->
@@ -185,4 +192,5 @@ const models = computed(() => {
 <style scoped>
 .pokedex:deep(#pokedex) {
     padding-top: 3.5rem;
-}</style>
+}
+</style>
