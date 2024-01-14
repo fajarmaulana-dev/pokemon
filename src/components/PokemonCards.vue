@@ -7,7 +7,7 @@ import { toRefs, computed } from "@vue/reactivity";
 import { ArrowLeft } from "iconoir-vue/regular";
 import NotFound from "~/NotFound.vue"
 
-const emit = defineEmits(['openCard', 'heart', 'update:slide', 'action', 'openFilter', 'update:text', 'back', 'update:onBottom', 'update:loadmore', 'confirm', 'update:confirm', 'chooseRegion', 'hover', 'allRegion', 'chooseFilter', 'refresh'])
+const emit = defineEmits(['openCard', 'heart', 'update:slide', 'action', 'openFilter', 'update:text', 'back', 'update:onBottom', 'update:loadmore', 'confirm', 'update:confirm', 'chooseRegion', 'hover', 'allRegion', 'chooseFilter', 'refresh', 'loadmore'])
 const props = defineProps({
     slide: {
         type: Array as PropType<boolean[]>,
@@ -89,10 +89,18 @@ const props = defineProps({
     refreshLoad: {
         type: Boolean as PropType<boolean>,
         default: false
+    },
+    noDetail: {
+        type: Object as PropType<{ state: boolean, index: number }>,
+        default: { state: false, index: 0 }
+    },
+    errorMore: {
+        type: Boolean as PropType<boolean>,
+        default: false
     }
 })
 
-const { slide, heart, data, actions, text, label, load, confirm, name, pageName, subpage, loadmore, onBottom, id, catched, disableFilter, types, isMain, regions, error, refreshLoad } = toRefs(props)
+const { slide, heart, data, actions, text, label, load, confirm, name, pageName, subpage, loadmore, onBottom, id, catched, disableFilter, types, isMain, regions, error, refreshLoad, noDetail, errorMore } = toRefs(props)
 const headerHeight = computed(() => {
     if (subpage.value) return 'mt-[208px] h-[calc(100vh-268px)] xx:mt-[164px] xx:h-[calc(100vh-224px)] xs:mt-[112px] xs:h-[calc(100vh-172px)] md:mt-0 md:h-[calc(100vh-340px)] xl:h-[calc(100vh-300px)] 2xl:h-[calc(100vh-248px)]'
     else {
@@ -122,8 +130,9 @@ const loadMore = computed(() => loadmore.value && onBottom.value)
                 <PokeCard :slide="slide" @update:slide="val => emit('update:slide', val)" :heart="heart"
                     :loadmore="loadMore" :data="data" :actions="actions" @open="idx => emit('openCard', idx)"
                     :catched="catched" @heart="val => emit('heart', val)" @confirm="val => emit('confirm', val)"
-                    :confirm="confirm" @update:confirm="val => emit('update:confirm', val)"
-                    @action="val => emit('action', val)" :is-main="isMain" />
+                    :confirm="confirm" @update:confirm="val => emit('update:confirm', val)" :error-more="errorMore"
+                    @action="val => emit('action', val)" :is-main="isMain" :no-detail="noDetail"
+                    @loadmore="emit('loadmore')" />
             </div>
             <NotFound v-else />
         </main>

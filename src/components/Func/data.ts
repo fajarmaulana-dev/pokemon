@@ -1,7 +1,6 @@
 import type { Favourite, PokemonCard, Filter, Spread, Names, MyPokemon } from '@/types';
 import get from '@/api';
 
-// particular function to get some core data by ids
 const getMoreData = async (spread: Spread, types: string[], ids: string[]) => {
   const pokemons: PokemonCard[] = [];
   for (const id of ids) {
@@ -30,7 +29,6 @@ const getMoreData = async (spread: Spread, types: string[], ids: string[]) => {
   return pokemons;
 };
 
-// init data on first mounted
 type ShortResult = { name: string; url: string };
 const idGetter = (url: string) => url.split('/').slice(-2, -1)[0];
 
@@ -109,7 +107,7 @@ const initData = async (data: {
   });
   genders = [...genders, ...unknownGender];
 
-  const initIds = [...Array(20)].map((_, i) => (i + 1).toString());
+  const initIds = [...Array(10)].map((_, i) => (i + 1).toString());
   const pokemons = await getMoreData(spread, types, initIds);
   let favourites: PokemonCard[] = [];
   let catches: PokemonCard[] = [];
@@ -117,11 +115,11 @@ const initData = async (data: {
     const favIds = favourite
       .filter((data) => data.state)
       .map((data) => Number(data.id).toString())
-      .slice(0, 20);
+      .slice(0, 10);
     favourites = await getMoreData(spread, types, favIds);
   }
   if (catched.length > 0) {
-    const catchIds = catched.map((data) => Number(data.id).toString()).slice(0, 20);
+    const catchIds = catched.map((data) => Number(data.id).toString()).slice(0, 10);
     catches = await getMoreData(spread, types, catchIds);
   }
   return {
@@ -148,10 +146,8 @@ const doFilter = async (data: {
   const { filter, init, heart, catches, names, types, regions, mode } = data;
   let next: boolean;
 
-  // just fetch unfetched data
   let initData: PokemonCard[] = [];
   const initId = init.map((data) => data.id);
-  // sort the names by sort param value before
   const initNames = names.sort((a: Record<string, any>, b: Record<string, any>) => {
     const param = filter.sort;
     if (param.mode == 'asc') return a[param.by].localeCompare(b[param.by]);
@@ -163,7 +159,6 @@ const doFilter = async (data: {
     ids = ids.filter((id) => !initId.includes(id));
   }
 
-  // filter for favourite page, catched page, or other page
   if (filter.mode == 'favorit') {
     ids = ids.filter((d) => heart.includes(d));
   }
@@ -171,19 +166,18 @@ const doFilter = async (data: {
     ids = ids.filter((d) => catches.includes(d));
   }
 
-  // filter by search name
   if (filter.search !== '') {
     initData = initData.filter((d) => d.name.includes(data.filter.search));
     const idTemp = names.filter((d) => d.name.includes(filter.search)).map((d) => d.id);
     ids = ids.filter((d) => idTemp.includes(d));
   }
-  // filter by type
+
   if (filter.type !== '') {
     initData = initData.filter((d) => d.types.includes(data.filter.type));
     const idTemp = types[filter.type].map((d) => names.find((n) => n.name == d)?.id);
     ids = ids.filter((d) => idTemp.includes(d));
   }
-  // filter by region
+
   if (filter.region !== '') {
     initData = initData.filter((d) => d.spread.includes(data.filter.region));
     const idTemp = regions[filter.region].map((d) => names.find((n) => n.name == d)?.id);
@@ -191,23 +185,19 @@ const doFilter = async (data: {
   }
 
   if (ids.length > 0) {
-    // get data no more than 20
-    if (ids.length > 20) {
-      ids = ids.slice(0, 20);
+    if (ids.length > 10) {
+      ids = ids.slice(0, 10);
       next = true;
     } else next = false;
   } else {
     next = false;
   }
 
-  // normalize ids and fetch
   ids = ids.map((id) => Number(id).toString());
   let dataToShow = await getMoreData(regions, Object.keys(types), ids);
 
-  // merge initial data with fetched data
   dataToShow = [...initData, ...dataToShow];
 
-  // sort data
   dataToShow = dataToShow.sort((a: Record<string, any>, b: Record<string, any>) => {
     const param = filter.sort;
     if (param.mode == 'asc') return a[param.by].localeCompare(b[param.by]);

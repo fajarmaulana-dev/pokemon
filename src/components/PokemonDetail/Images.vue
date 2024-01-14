@@ -3,6 +3,7 @@ import { toRefs, ref, computed } from '@vue/reactivity';
 import { onMounted } from "@vue/runtime-core";
 import type { PropType } from 'vue';
 import { imageSource, getAssets } from "..";
+import TypeGradient from '../TypeGradient.vue';
 
 const emit = defineEmits(['update:modelValue', 'catch'])
 const props = defineProps({
@@ -52,7 +53,7 @@ onMounted(() => {
             bg-gradient-to-br" :class="`from-${type}-1/95 to-${type}-1/50`"></div>
     </div>
     <div class="absolute top-[calc(1rem+1vw)] h-full w-full flex justify-center">
-        <img :src="getAssets(`${type}.avif`)" height="260" alt="pokemon background">
+        <TypeGradient :is="type" />
     </div>
     <div ref="sideImage" class="relative h-full w-full flex justify-center ">
         <img @click="emit('catch')" loading="eager" :src="imageSource(gif)" width="240" height="240" alt="pokemon animation"

@@ -11,27 +11,6 @@ import Images from "./PokemonDetail/Images.vue";
 import DeskImage from "./PokemonDetail/DeskImage.vue";
 import { imageSource, overflowHandler } from ".";
 
-// use heart emit to do an action when click favourite button
-// to perform toggle action, please create a function for @heart event on child component like this
-/*
-    const hearts = ref([values])
-    const handleFavourite = ({ index, endload }: { index: number, endload: () => void }) => {
-        hearts.value[index].state = !hearts.value[index].state
-        // ... some action to update the state in state management or database
-        endload() // this function is used to stop loading progress
-    }
-*/
-
-// use catch emit to do an action when catch a pokemon
-
-// use confirm to open confirmation pane on unfavourite action
-
-// use sidePage to open this detail pane
-
-// catched: if id of data contained in catched, it's mean that the pokemon has been catched
-
-// confirm: to receive confirmation data of removed item from favourite
-
 const emit = defineEmits(['heart', 'update:confirm', 'confirm', 'update:sidePage', 'catch'])
 const props = defineProps({
     data: {
@@ -111,11 +90,17 @@ const closeStyle = computed(() => {
 const transition = computed(() => {
     return { transform: `translate${screenWidth.value < 640 ? 'X' : 'Y'}(${sidePage.value ? '0' : `${screenWidth.value < 640 ? '-' : ''}100`}%)` }
 })
+
+const animate = ref(false)
+watch(sidePage, () => {
+    if (sidePage.value) animate.value = true;
+    else setTimeout(() => { animate.value = false }, 500)
+})
 </script>
 
 <template>
-    <aside :id="id" :style="transition"
-        class="fixed h-screen w-full top-0 right-0 transition duration-500 flex justify-end">
+    <aside :id="id" :style="transition" :class="{ 'transition duration-500': animate }"
+        class="fixed h-screen w-full top-0 right-0 flex justify-end">
         <div class="panelayer" :class="{ 'is-active': sidePage }" @click="emit('update:sidePage', false)"></div>
         <div
             class="bg-white relative z-10 h-full w-full max-w-[1024px] overflow-x-hidden overflow-y-auto sm:flex sm:flex-row-reverse sm:gap-1">
@@ -155,7 +140,7 @@ const transition = computed(() => {
         <i v-if="sidePage" v-for="i in Math.floor(screenWidth / 18)"
             class="star absolute -top-4 w-0.5 bg-electric-0 rounded-full"
             :style="`height: ${25 + (Math.random() * 100)}px; left: ${Math.floor(Math.random() * screenWidth)}px; animation-duration: ${(Math.random() * 100) + 1}s`"></i>
-        <img :src="imageSource(data.gif)" :class="load.catch ? 'scale-100 delay-300' : 'scale-0'"
+        <img :src="imageSource(data.gif)" :class="load.catch ? 'scale-100 delay-300' : 'scale-0'" width="480" height="480"
             class="relative z-[10] w-[75vw] max-w-[480px] transition duration-300" alt="animated image">
         <b class="font-semibold text-white text-center text-lg">Penangkapan sedang dalam proses...</b>
     </div>

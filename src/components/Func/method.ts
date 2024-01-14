@@ -1,13 +1,20 @@
-import type { PokemonCard, Pokemon, Favourite, Filter, MyPokemon, Names, Spread } from '@/types';
+import type {
+  PokemonCard,
+  Favourite,
+  Filter,
+  MyPokemon,
+  Spread,
+  PokemonCardAction,
+  Preference,
+} from '@/types';
 import Local from '@/api/local';
+import type { PropType, SVGAttributes } from 'vue';
 
-// func to back to top of desired page
 const toTop = (id: string) => {
   const el = document.getElementById(id) as HTMLElement;
   if (el) el.scrollTop = 0;
 };
 
-// func to change filter and its label value when one item in filter pane has been clicked
 const filterFunc = (
   is: string,
   item: string,
@@ -36,18 +43,15 @@ const filterFunc = (
   return { filterRes, labelRes, loadRes };
 };
 
-// func to transform types item label by its type
 const typesLabel = (idx: number, type: string) =>
   idx == 0 ? 'Semua Tipe' : `Tipe ${type[0].toUpperCase() + type.slice(1, type.length)}`;
 
-// func to return color by its type
 const getTypesColor = (type: string, idx: number, paneFor: string) => {
   if (idx == 0 || paneFor == 'sort')
     return 'bg-slate-300/80 hover:bg-slate-300/90 active:bg-slate-300';
   else return `bg-${type}-1/50 hover:bg-${type}-1/60 active:bg-${type}-1/70`;
 };
 
-// func to set some data to local storage on refresh
 const setLocalData = (
   fav: Favourite[],
   mine: MyPokemon[],
@@ -60,7 +64,6 @@ const setLocalData = (
   Local.setData('type-dex', mineType);
 };
 
-// func to get types of each region
 const getTypes = (types: Spread, regions: Spread, name: string) => {
   const getType = (pokemon: string) => {
     let tempType: string[] = [];
@@ -81,7 +84,6 @@ const getTypes = (types: Spread, regions: Spread, name: string) => {
   return tempType;
 };
 
-// func to handle change of favourites data
 const favHelper = (data: { toHandle: Favourite; all: Favourite[] }) => {
   const { toHandle, all } = data;
   let favourite = toHandle;
@@ -94,7 +96,6 @@ const favHelper = (data: { toHandle: Favourite; all: Favourite[] }) => {
   });
 };
 
-// func to help on handle favourite
 const doHeart = (
   types: Record<string, number>,
   favourites: Favourite[],
@@ -114,7 +115,6 @@ const doHeart = (
   };
 };
 
-// func to help on handle catch
 const doCatch = (myTypes: Record<string, number>, selectedPokemon: PokemonCard) => {
   const id = selectedPokemon.id;
   const types = selectedPokemon.types;
@@ -126,4 +126,157 @@ const doCatch = (myTypes: Record<string, number>, selectedPokemon: PokemonCard) 
   return { temp, updatedType };
 };
 
-export { toTop, filterFunc, typesLabel, getTypesColor, setLocalData, getTypes, doHeart, doCatch };
+const mainProps = {
+  filterLoad: {
+    type: Object as PropType<Record<string, Record<string, boolean>>>,
+    default: {},
+  },
+  filter: {
+    type: Object as PropType<Record<string, Filter>>,
+    default: {},
+  },
+  search: {
+    type: Object as PropType<Record<string, string>>,
+    default: {},
+  },
+  filterLabel: {
+    type: Object as PropType<Record<string, Record<string, string>>>,
+    default: {},
+  },
+  filteredPokemon: {
+    type: Object as PropType<Record<string, PokemonCard[]>>,
+    default: {},
+  },
+  filteredFavourite: {
+    type: Object as PropType<Record<string, Favourite[]>>,
+    default: {},
+  },
+  onBottom: {
+    type: Object as PropType<Record<string, boolean>>,
+    default: {},
+  },
+  error: {
+    type: Object as PropType<Record<string, boolean>>,
+    default: {},
+  },
+  cardSlideState: {
+    type: Object as PropType<Record<string, boolean[]>>,
+    default: {},
+  },
+  pokedex: {
+    type: Boolean as PropType<boolean>,
+    default: false,
+  },
+  disableFilter: {
+    type: Boolean as PropType<boolean>,
+    default: false,
+  },
+  allCatched: {
+    type: Array as PropType<string[]>,
+    default: [],
+  },
+  confirmData: {
+    type: Object as PropType<
+      Record<string, { text: string; confirm: { state: boolean; index: number } }>
+    >,
+    default: {},
+  },
+  cardActions: {
+    type: Array as PropType<PokemonCardAction[]>,
+    default: [],
+  },
+  profilePage: {
+    type: Number as PropType<number>,
+    default: 0,
+  },
+  subPage: {
+    type: Number as PropType<number>,
+    default: 0,
+  },
+  subName: {
+    type: Object as PropType<{ text: string; back?: boolean; icon: (props: SVGAttributes) => any }>,
+    default: {},
+  },
+  user: {
+    type: Object as PropType<{ name: string; email: string; image: string }>,
+    default: { name: 'Fajar Maulana', email: 'm.fajars.net@gmail.com', image: '' },
+  },
+  isLogin: {
+    type: Boolean as PropType<boolean>,
+    default: true,
+  },
+  refreshLoad: {
+    type: Object as PropType<Record<string, boolean>>,
+    default: {},
+  },
+  availableType: {
+    type: Object as PropType<Record<string, string[]>>,
+    default: {},
+  },
+  forPokedex: {
+    type: String as PropType<string>,
+    default: 'beranda',
+  },
+  noDetail: {
+    type: Object as PropType<Record<string, { state: boolean; index: number }>>,
+    default: {},
+  },
+  errorMore: {
+    type: Object as PropType<Record<string, boolean>>,
+    default: {},
+  },
+  profileError: {
+    type: Object as PropType<Record<string, boolean>>,
+    default: false,
+  },
+  profileLoad: {
+    type: Object as PropType<Record<string, boolean>>,
+    default: false,
+  },
+  prefer: {
+    type: Object as PropType<Preference>,
+    default: {
+      image: '',
+      name: '',
+      useIndonesia: true,
+      notification: { world: true, update: true },
+      auth: { oauth: true, bio: false, otp: false },
+    },
+  },
+  preferTemp: {
+    type: Object as PropType<{ image: string; data: Preference }>,
+    default: { image: '', data: {} },
+  },
+  password: {
+    type: Object as PropType<{
+      password: Record<string, string>;
+      hide: Record<string, boolean>;
+      error: Record<string, string | undefined>;
+    }>,
+    default: {
+      password: { current: '', new: '', confirm: '' },
+      hide: { current: true, new: true, confirm: true },
+      error: { current: undefined, new: undefined, confirm: undefined },
+    },
+  },
+  passwordPage: {
+    type: Number as PropType<number>,
+    default: 0,
+  },
+  passwordWrong: {
+    type: Boolean as PropType<boolean>,
+    default: false,
+  },
+};
+
+export {
+  toTop,
+  filterFunc,
+  typesLabel,
+  getTypesColor,
+  setLocalData,
+  getTypes,
+  doHeart,
+  doCatch,
+  mainProps,
+};

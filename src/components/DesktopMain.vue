@@ -3,101 +3,16 @@ import { ref, computed, toRefs } from "@vue/reactivity";
 import PokemonCards from "./PokemonCards.vue";
 import { useMainStore } from "@/stores";
 import DesktopLayout from "./DesktopLayout.vue";
+import DesktopProfileLayout from "./Profile/DesktopProfileLayout.vue";
+import Preference from "./Profile/Preference.vue";
+import Password from "./Profile/Password.vue";
 import { storeToRefs } from 'pinia';
 import { ArrowLeft, Pokeball, Heart } from "iconoir-vue/regular";
-import { toTop } from "./Func/method"
-import type { PropType, SVGAttributes } from "vue";
-import type { Favourite, Filter, PokemonCard, PokemonCardAction } from "@/types";
+import { toTop, mainProps } from "./Func/method";
 
-const emit = defineEmits(['update:pokedex', 'desktopRegion', 'mobileRegion', 'allRegion', 'openFilter', 'handleFavourite', 'cardConfirm', 'openCard', 'chooseFilter', 'unCatch', 'unFavourite', 'sign', 'refresh'])
-const props = defineProps({
-    filterLoad: {
-        type: Object as PropType<Record<string, Record<string, boolean>>>,
-        default: {}
-    },
-    filter: {
-        type: Object as PropType<Record<string, Filter>>,
-        default: {}
-    },
-    search: {
-        type: Object as PropType<Record<string, string>>,
-        default: {}
-    },
-    filterLabel: {
-        type: Object as PropType<Record<string, Record<string, string>>>,
-        default: {}
-    },
-    filteredPokemon: {
-        type: Object as PropType<Record<string, PokemonCard[]>>,
-        default: {}
-    },
-    filteredFavourite: {
-        type: Object as PropType<Record<string, Favourite[]>>,
-        default: {}
-    },
-    onBottom: {
-        type: Object as PropType<Record<string, boolean>>,
-        default: {}
-    },
-    error: {
-        type: Object as PropType<Record<string, boolean>>,
-        default: {}
-    },
-    availableType: {
-        type: Object as PropType<Record<string, string[]>>,
-        default: {}
-    },
-    cardSlideState: {
-        type: Object as PropType<Record<string, boolean[]>>,
-        default: {}
-    },
-    pokedex: {
-        type: Boolean as PropType<boolean>,
-        default: false
-    },
-    forPokedex: {
-        type: String as PropType<string>,
-        default: 'beranda'
-    },
-    disableFilter: {
-        type: Boolean as PropType<boolean>,
-        default: false
-    },
-    allCatched: {
-        type: Array as PropType<string[]>,
-        default: []
-    },
-    confirmData: {
-        type: Object as PropType<Record<string, { text: string, confirm: { state: boolean, index: number } }>>,
-        default: {}
-    },
-    cardActions: {
-        type: Array as PropType<PokemonCardAction[]>,
-        default: []
-    },
-    user: {
-        type: Object as PropType<{ name: string, email: string, image: string }>,
-        default: { name: 'Fajar Maulana', email: 'm.fajars.net@gmail.com', image: '' }
-    },
-    isLogin: {
-        type: Boolean as PropType<boolean>,
-        default: true
-    },
-    refreshLoad: {
-        type: Object as PropType<Record<string, boolean>>,
-        default: {}
-    },
-    subPage: {
-        type: Number as PropType<number>,
-        default: 0
-    },
-    subName: {
-        type: Object as PropType<{ text: string, back?: boolean, icon: (props: SVGAttributes) => any }>,
-        default: {}
-    },
-})
-
-const { filterLoad, filter, search, filterLabel, filteredPokemon, filteredFavourite, onBottom, error, availableType, cardSlideState, pokedex, forPokedex, disableFilter, allCatched, confirmData, cardActions, user, isLogin } = toRefs(props)
+const emit = defineEmits(['update:pokedex', 'update:profilePage', 'update:prefer', 'update:password', 'update:passwordPage', 'update:passwordWrong', 'desktopRegion', 'mobileRegion', 'allRegion', 'openFilter', 'handleFavourite', 'cardConfirm', 'openCard', 'chooseFilter', 'unCatch', 'unFavourite', 'sign', 'refresh', 'loadmore', 'savePrefer', 'profileImage', 'postPass'])
+const props = defineProps(mainProps)
+const { filterLoad, filter, search, filterLabel, filteredPokemon, filteredFavourite, onBottom, error, availableType, cardSlideState, pokedex, forPokedex, disableFilter, allCatched, confirmData, prefer, profileError, profileLoad, password, passwordPage, passwordWrong, cardActions, profilePage, errorMore, noDetail, user, isLogin } = toRefs(props)
 
 const store = useMainStore()
 const { page, regions } = storeToRefs(store)
@@ -113,7 +28,7 @@ const deskRegionData = computed(() => {
 
 const layerStyle = {
     wrapper: 'bg-white rounded-2xl shadow-[0_0_10px_2px] shadow-gray-200/40 overflow-hidden z-0 relative',
-    content: 'absolute left-0 h-20 w-full bg-rose-200 hover:bg-rose-300 active:bg-red-200 transition duration-300 rounded-2xl shadow-[0_0_10px_2px] shadow-gray-200/40 px-4 flex items-center justify-between gap-2 cursor-pointer'
+    content: 'absolute left-0 h-20 w-full bg-rose-200 text-slate-800 hover:bg-rose-300 active:bg-red-200 transition duration-300 rounded-2xl shadow-[0_0_10px_2px] shadow-gray-200/40 px-4 flex items-center justify-between gap-2 cursor-pointer'
 }
 
 const pokedexIsOpen = ref(false)
@@ -147,14 +62,16 @@ const models = computed(() => {
         confirmData: confirmData.value,
         onBottom: onBottom.value,
         cardSlideState: cardSlideState.value,
-        availableType: availableType.value
+        availableType: availableType.value,
+        prefer: prefer.value,
     }
 })
 const types = computed(() => ['', ...models.value.availableType[forPokedex.value]])
 </script>
 
 <template>
-    <DesktopLayout :is-login="isLogin" :data="user" @sign="emit('sign')">
+    <DesktopLayout :is-login="isLogin" :data="user" :model-value="profilePage"
+        @update:model-value="val => emit('update:profilePage', val)" @sign="emit('sign')">
         <template #0>
             <div class="flex gap-5">
                 <div
@@ -169,8 +86,9 @@ const types = computed(() => ['', ...models.value.availableType[forPokedex.value
                         @open-card="val => emit('openCard', val)" v-model:loadmore="models.filter[deskHome].next"
                         v-model:on-bottom="models.onBottom[deskHome]" @choose-region="deskOpenRegion"
                         @all-region="toTop('wilayah'); emit('allRegion')" :refresh-load="refreshLoad[deskHome]"
-                        @refresh="emit('refresh')"
-                        @choose-filter="({ filter, item }) => emit('chooseFilter', { is: filter, item })" />
+                        @refresh="emit('refresh')" :no-detail="noDetail[deskHome]" :error-more="errorMore[deskHome]"
+                        @choose-filter="({ filter, item }) => emit('chooseFilter', { is: filter, item })"
+                        @loadmore="emit('loadmore')" />
                 </div>
                 <div class="h-full min-w-[20rem] w-[65%] xl:w-[50%] flex flex-col gap-3.5">
                     <div v-for="name, i in ['pokedex', 'favorit']" :class="['h-full', 'min-h-[5rem] h-20'][dexIndex(i)]"
@@ -179,33 +97,45 @@ const types = computed(() => ['', ...models.value.availableType[forPokedex.value
                             style="transition: .5s;">
                             <PokemonCards :id="name" v-model:text="models.search[name]" :name="`${name}-desktop-filter`"
                                 :page-name="{ text: name[0].toUpperCase() + name.slice(1, name.length), icon: ArrowLeft }"
-                                @open-filter="val => emit('openFilter', val)" :label="filterLabel[name]"
-                                @hover="handleDeskDex(name)" :disable-filter="disableFilter" :load="filterLoad[name]"
+                                :disable-filter="disableFilter" :error-more="errorMore[name]" :label="filterLabel[name]"
+                                @hover="handleDeskDex(name)" @open-filter="val => emit('openFilter', val)" :types="types"
                                 :data="filteredPokemon[name]" @open-card="val => emit('openCard', val)" :error="error[name]"
-                                v-model:loadmore="models.filter[name].next" :actions="cardActions" :types="types"
+                                v-model:loadmore="models.filter[name].next" :actions="cardActions" :load="filterLoad[name]"
                                 @action="val => { i == 0 ? emit('unCatch', val) : emit('unFavourite', val) }"
                                 v-model:on-bottom="models.onBottom[name]" v-model:slide="models.cardSlideState[name]"
                                 @choose-filter="({ filter, item }) => emit('chooseFilter', { is: filter, item })"
-                                :refresh-load="refreshLoad[name]" @refresh="emit('refresh')" />
+                                :refresh-load="refreshLoad[name]" @refresh="emit('refresh')" :no-detail="noDetail[name]"
+                                @loadmore="emit('loadmore')" />
                         </div>
                         <div @click="pokedexIsOpen = i == 0 ? true : false" class="z-[1]" style="transition: .5s;"
                             :class="[layerStyle.content, pokedexIsOpen ? i == 0 ? '-top-20' : 'bottom-0' : i == 0 ? 'top-0' : '-bottom-20']">
-                            <span class="text-xl font-bold text-slate-800 capitalize">{{ name }}</span>
-                            <component :is="i == 0 ? Pokeball : Heart"
-                                class="w-8 h-8 [&>*]:stroke-slate-800 [&>*]:stroke-[3]"></component>
+                            <span class="text-xl font-bold capitalize">{{ name }}</span>
+                            <component :is="i == 0 ? Pokeball : Heart" class="w-8 h-8 stroke-[3]"></component>
                         </div>
                     </div>
                 </div>
             </div>
         </template>
         <template #1>
-            <div class="w-full h-full bg-orange-500"></div>
+            <div>
+                <div class="bg-white rounded-2xl h-full w-full shadow-[0_0_10px_2px] shadow-gray-200/40 overflow-y-auto">
+                </div>
+            </div>
         </template>
         <template #2>
-            <div class="w-full h-full bg-amber-500"></div>
+            <DesktopProfileLayout image="hisui">
+                <Preference :model-value="prefer" @update:model-value="val => emit('update:prefer', val)"
+                    :err-net="profileError.prefer" :temp="preferTemp" @save="val => emit('savePrefer', val)"
+                    :load="profileLoad.prefer" @file="val => emit('profileImage', val)" />
+            </DesktopProfileLayout>
         </template>
         <template #3>
-            <div class="w-full h-full bg-green-500"></div>
+            <DesktopProfileLayout image="paldea">
+                <Password :err-net="profileError.password" :load="profileLoad.password" :data="password"
+                    :page="passwordPage" :wrong="passwordWrong" @update:wrong="val => emit('update:passwordWrong', val)"
+                    @post="val => emit('postPass', val)" @update:page="val => emit('update:passwordPage', val)"
+                    @update:data="val => emit('update:password', val)" />
+            </DesktopProfileLayout>
         </template>
         <template #4>
             <div class="w-full h-full bg-blue-500"></div>

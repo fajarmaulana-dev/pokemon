@@ -7,6 +7,7 @@ import { Heart } from "iconoir-vue/solid";
 import { Pokeball } from "iconoir-vue/regular";
 import { getAssets, imageSource } from "..";
 import Spinner from "../Spinner.vue";
+import TypeGradient from '../TypeGradient.vue';
 
 const emit = defineEmits(['startTouch', 'endTouch', 'heart'])
 const props = defineProps({
@@ -73,8 +74,8 @@ onMounted(() => {
             @mouseup="e => emit('endTouch', { e, mobile: false })"
             @mousedown="e => emit('startTouch', { e, mobile: false })">
             <img :loading="screenWidth < 1280 ? 'eager' : 'lazy'" :src="imageSource(data.image)" alt="pokemon-image"
-                height="96" class="absolute max-h-24 max-w-24">
-            <img :src="getAssets(`${data.types[0]}.avif`)" alt="type-icon" :style="{ maxHeight: `${bgIcon}rem` }">
+                width="96" height="96" class="absolute max-h-24 max-w-24">
+            <TypeGradient :is="data.types[0]" :height="112" />
         </div>
     </div>
 </template>

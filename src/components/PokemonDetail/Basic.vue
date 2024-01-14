@@ -22,8 +22,6 @@ const props = defineProps({
 
 const { data, favourite, info } = toRefs(props)
 
-const iconHeight = (type: string) => type == 'ground' ? 14 : type == 'rock' || type == 'flying' ? 15 : 18;
-
 const transformedDetail = computed(() => {
     const icons = [Gym, ExpandLines, Extrude, Archery]
     const labels = ['berat', 'tinggi', 'pengalaman dasar', 'kemampuan']
@@ -61,7 +59,7 @@ const transformedGender = computed((): Record<string, { value: number, icon: (pr
         <div v-for="poketype in data.types" :class="`bg-${poketype}-1`"
             class="h-10 w-fit flex items-center gap-[.4rem] p-1 pr-[.8rem] rounded-[20px]">
             <div class="h-8 w-8 bg-white rounded-full grid place-items-center">
-                <TypeIcon :is="poketype" :height="iconHeight(poketype)" />
+                <TypeIcon :is="poketype" />
             </div>
             <span class="text-white text-sm font-semibold drop-shadow capitalize">
                 {{ poketype }}</span>

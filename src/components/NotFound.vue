@@ -24,8 +24,8 @@ const { text } = toRefs(props)
 
 <template>
     <div class="h-full w-full flex justify-center items-center flex-col gap-6">
-        <img src="@/assets/notfound.avif" width="370" class="hidden w-[180px] sm:w-[240px] md:w-[152px] xl:w-[180px]"
-            alt="not found image" />
+        <img src="@/assets/notfound.avif" width="240" height="279" alt="not found image"
+            class="hidden w-[180px] sm:w-[240px] md:w-[152px] xl:w-[180px]" />
         <div class="flex flex-col items-center text-center px-6">
             <b class="text-2xl text-fill-1 mb-1 hidden">{{ error ? 'Network Error' : '404 Not Found' }}</b>
             <span class="text-slate-800 leading-[1.4rem] max-w-[75vw]">

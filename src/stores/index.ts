@@ -36,8 +36,6 @@ export const useMainStore = defineStore('main', () => {
   const names = ref<Names[]>([]);
   const genders = ref<Genders[]>([]);
 
-  // filter for regions using static images, that is why we must define the list for regions manually
-  // if any update for regions, just change this array and static image for the added region
   const regions = ref<Spread>({
     kanto: [],
     johto: [],
@@ -51,7 +49,6 @@ export const useMainStore = defineStore('main', () => {
     paldea: [],
   });
 
-  // same argument as above
   const types = ref<Spread>(Object.fromEntries(typeName.map((t) => [t, []])));
 
   const page = ref<{ name: string; index: number }>({ name: 'beranda', index: 0 });

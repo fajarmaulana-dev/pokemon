@@ -55,16 +55,16 @@ const onInvalid = computed(() => {
 })
 
 const iconStyle = 'h-[18px] w-[18px] [&>*]:stroke-[3] [&>*]:stroke-slate-500/90'
+const onModel = ({ target }: any) => emit('update:modelValue', target.value)
+const inputStyle = computed(() => [appendIcon.value == null ? 'pr-3' : 'pr-9', prependIcon.value == null ? 'pl-3' : 'pl-9', onDisabled.value, onInvalid.value, { 'max-w-[480px] xs:focus:w-80 sm:w-full sm:focus:w-full md:min-w-full': !fullText.value }])
 </script>
 
 <template>
     <div class="relative w-full [&>i]:absolute [&>i]:text-slate-500/90 overflow-hidden rounded-[20px]">
         <input :id="id" :type="forPassword ? 'password' : 'text'" :readonly="readonly" :disabled="disabled" :name="name"
             @focus="emit('onFocus')" @blur="emit('onBlur')" @keyup.enter="emit('onEnter')" :value="modelValue"
-            spellcheck="false" :placeholder="placeholder"
-            @input="({ target }: any) => emit('update:modelValue', target.value)" :class="[appendIcon == null ? 'pr-3' : 'pr-9', prependIcon == null ? 'pl-3' : 'pl-9', onDisabled, onInvalid,
-            { 'max-w-[480px] xs:focus:w-80 sm:w-full sm:focus:w-full md:min-w-full': !fullText }]" class="h-[40px] w-full outline-none border-2 transition
-            duration-1000 pr-3 pl-9 rounded-full text-[15px] text-slate-800" />
+            spellcheck="false" :placeholder="placeholder" @input="onModel" :class="inputStyle" autocomplete="new-password"
+            class="h-[40px] w-full outline-none border-2 transition duration-1000 pr-3 pl-9 rounded-full text-[15px] text-slate-800" />
         <i class="left-3 pointer-events-none top-[calc(50%-9px)]" v-if="prependIcon !== null">
             <component :is="prependIcon" :class="iconStyle"></component>
         </i>

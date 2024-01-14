@@ -14,12 +14,6 @@ const props = defineProps({
 })
 
 const { data } = toRefs(props)
-
-const iconHeight = (type: string, big: boolean = true) => {
-    if (big) return type == 'ground' ? 14 : type == 'rock' || type == 'flying' ? 15 : 18;
-    else return type == 'ground' ? 11 : type == 'rock' || type == 'flying' ? 12 : 15;
-}
-
 const headStyle = 'text-lg font-semibold mb-2 text-center uppercase w-full text-slate-800';
 </script>
 
@@ -30,7 +24,7 @@ const headStyle = 'text-lg font-semibold mb-2 text-center uppercase w-full text-
             <div v-for="poketype in data.weakness" :class="`bg-${poketype}-1`"
                 class="h-10 w-fit basis-28 flex items-center gap-[.4rem] p-1 pr-[.8rem] rounded-[20px]">
                 <div class="h-8 w-8 bg-white rounded-full grid place-items-center">
-                    <TypeIcon :is="poketype" :height="iconHeight(poketype)" />
+                    <TypeIcon :is="poketype" />
                 </div>
                 <span class="text-white text-sm font-semibold drop-shadow capitalize">
                     {{ poketype }}</span>
@@ -49,7 +43,7 @@ const headStyle = 'text-lg font-semibold mb-2 text-center uppercase w-full text-
                 </div>
                 <div class="border-2 border-slate-400 rounded-2xl p-2 pr-4 xs:p-4">
                     <div class="flex items-center">
-                        <img :src="imageSource(ev.image)" class="w-28 xs:w-32" alt="card image" />
+                        <img :src="imageSource(ev.image)" width="128" height="128" class="w-28 xs:w-32" alt="card image" />
                         <div class="overflow-hidden">
                             <b class="text-slate-800 font-semibold">No. {{ ev.id }}</b>
                             <p class="text-slate-800 whitespace-nowrap text-xl font-bold overflow-hidden
@@ -58,7 +52,7 @@ const headStyle = 'text-lg font-semibold mb-2 text-center uppercase w-full text-
                                 <div v-for="poketype in ev.types" :class="`bg-${poketype}-1`"
                                     class="h-8 w-fit flex items-center gap-[.3rem] p-1 pr-1 xs:pr-[.6rem] rounded-[1rem]">
                                     <div class="h-6 w-6 bg-white rounded-full grid place-items-center">
-                                        <TypeIcon :is="poketype" :height="iconHeight(poketype, false)" />
+                                        <TypeIcon :is="poketype" :height="15" />
                                     </div>
                                     <span class="hidden xs:block text-white text-xs font-semibold drop-shadow capitalize">
                                         {{ poketype }}</span>

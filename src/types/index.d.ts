@@ -57,6 +57,14 @@ interface Genders {
   possibility: number;
 }
 
+interface Preference {
+  image: string;
+  name: string;
+  useIndonesia: boolean;
+  notification: { world: boolean; update: boolean };
+  auth: { oauth: boolean; bio: boolean; otp: boolean };
+}
+
 export type {
   Pokemons,
   PokemonCard,
@@ -68,4 +76,5 @@ export type {
   Spread,
   Names,
   Genders,
+  Preference,
 };

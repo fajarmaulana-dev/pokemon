@@ -159,7 +159,7 @@ const closeOptions = (type: string) => {
                         <NavArrowDown class="h-5 w-5 [&>*]:stroke-[3] [&>*]:stroke-slate-800" />
                     </i>
                     <div v-if="screenWidth >= 768" class="absolute w-full scale-y-0 group-hover:scale-y-100 origin-top transition
-                        duration-500 top-10 z-10 cursor-default min-w-fit">
+                        duration-500 top-10 cursor-default min-w-fit" :class="filter == 'type' ? 'z-[11]' : 'z-10'">
                         <div :ref="e => { options[filter] = e }" :style="{ maxHeight: `${optionsHeight[filter]}px` }"
                             class="bg-rose-50 rounded-[20px] flex flex-wrap gap-3 xl:gap-3 p-4 xl:p-3 mt-2 h-fit min-w-fit overflow-y-auto filter">
                             <span v-for="item, idx in filters[filter]" :class="getTypesColor(item, idx, filter)"

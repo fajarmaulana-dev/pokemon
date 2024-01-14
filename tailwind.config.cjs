@@ -4,8 +4,16 @@ module.exports = {
   content: ['./index.html', './src/**/*.{vue,js,ts,jsx,tsx}'],
   safelist: [
     {
-      pattern: /(bg|to|from|shadow)-+/,
-      variants: ['hover', 'active', 'first', 'hover:first', 'active:first'],
+      pattern: /(bg|to|from|shadow|rounded)-+/,
+      variants: [
+        'hover',
+        'active',
+        'first',
+        'hover:first',
+        'active:first',
+        'group-hover',
+        'group-active',
+      ],
     },
   ],
   theme: {

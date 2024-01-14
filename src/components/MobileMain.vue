@@ -1,103 +1,20 @@
 <script setup lang="ts">
-import { computed, toRefs } from "@vue/reactivity";
+import { computed, toRefs, ref } from "@vue/reactivity";
+import { watch } from "@vue/runtime-core";
 import PokemonCards from "./PokemonCards.vue";
 import Regions from "./Regions.vue";
 import Footer from "./Footer.vue";
+import MobileProfile from "./Profile/MobileProfile.vue";
+import Preference from "./Profile/Preference.vue";
+import Password from "./Profile/Password.vue";
 import { useMainStore } from "@/stores";
 import { storeToRefs } from 'pinia';
 import { ArrowLeft, Xmark } from "iconoir-vue/regular";
-import type { PropType, SVGAttributes } from "vue";
-import type { Favourite, Filter, PokemonCard, PokemonCardAction } from "@/types";
+import { mainProps } from "./Func/method";
 
-const emit = defineEmits(['update:pokedex', 'update:subPage', 'mobileRegion', 'desktopRegion', 'openFilter', 'handleFavourite', 'cardConfirm', 'openCard', 'unCatch', 'unFavourite', 'allRegion', 'chooseFilter', 'sign', 'refresh'])
-const props = defineProps({
-    filterLoad: {
-        type: Object as PropType<Record<string, Record<string, boolean>>>,
-        default: {}
-    },
-    filter: {
-        type: Object as PropType<Record<string, Filter>>,
-        default: {}
-    },
-    search: {
-        type: Object as PropType<Record<string, string>>,
-        default: {}
-    },
-    filterLabel: {
-        type: Object as PropType<Record<string, Record<string, string>>>,
-        default: {}
-    },
-    filteredPokemon: {
-        type: Object as PropType<Record<string, PokemonCard[]>>,
-        default: {}
-    },
-    filteredFavourite: {
-        type: Object as PropType<Record<string, Favourite[]>>,
-        default: {}
-    },
-    onBottom: {
-        type: Object as PropType<Record<string, boolean>>,
-        default: {}
-    },
-    error: {
-        type: Object as PropType<Record<string, boolean>>,
-        default: {}
-    },
-    cardSlideState: {
-        type: Object as PropType<Record<string, boolean[]>>,
-        default: {}
-    },
-    pokedex: {
-        type: Boolean as PropType<boolean>,
-        default: false
-    },
-    disableFilter: {
-        type: Boolean as PropType<boolean>,
-        default: false
-    },
-    allCatched: {
-        type: Array as PropType<string[]>,
-        default: []
-    },
-    confirmData: {
-        type: Object as PropType<Record<string, { text: string, confirm: { state: boolean, index: number } }>>,
-        default: {}
-    },
-    cardActions: {
-        type: Array as PropType<PokemonCardAction[]>,
-        default: []
-    },
-    subPage: {
-        type: Number as PropType<number>,
-        default: 0
-    },
-    subName: {
-        type: Object as PropType<{ text: string, back?: boolean, icon: (props: SVGAttributes) => any }>,
-        default: {}
-    },
-    user: {
-        type: Object as PropType<{ name: string, email: string, image: string }>,
-        default: { name: 'Fajar Maulana', email: 'm.fajars.net@gmail.com', image: '' }
-    },
-    isLogin: {
-        type: Boolean as PropType<boolean>,
-        default: true
-    },
-    refreshLoad: {
-        type: Object as PropType<Record<string, boolean>>,
-        default: {}
-    },
-    availableType: {
-        type: Object as PropType<Record<string, string[]>>,
-        default: {}
-    },
-    forPokedex: {
-        type: String as PropType<string>,
-        default: 'beranda'
-    },
-})
-
-const { filterLoad, filter, search, filterLabel, filteredPokemon, filteredFavourite, onBottom, error, cardSlideState, pokedex, disableFilter, allCatched, confirmData, cardActions, subPage, subName, user, isLogin } = toRefs(props)
+const emit = defineEmits(['update:pokedex', 'update:profilePage', 'update:prefer', 'update:password', 'update:passwordPage', 'update:passwordWrong', 'update:subPage', 'mobileRegion', 'desktopRegion', 'openFilter', 'handleFavourite', 'cardConfirm', 'openCard', 'unCatch', 'unFavourite', 'allRegion', 'chooseFilter', 'sign', 'refresh', 'openMenu', 'loadmore', 'savePrefer', 'backProfile', 'profileImage', 'postPass'])
+const props = defineProps(mainProps)
+const { filterLoad, filter, search, filterLabel, filteredPokemon, filteredFavourite, onBottom, error, cardSlideState, pokedex, disableFilter, allCatched, confirmData, cardActions, profilePage, prefer, profileError, profileLoad, password, passwordPage, passwordWrong, errorMore, noDetail, subPage, subName, user, isLogin } = toRefs(props)
 
 const store = useMainStore()
 const { page, regions } = storeToRefs(store)
@@ -111,6 +28,13 @@ const models = computed(() => {
         cardSlideState: cardSlideState.value,
     }
 })
+
+const pageWatcher = computed(() => profilePage.value)
+const pageHandler = ref(pageWatcher.value)
+watch(profilePage, () => {
+    if (profilePage.value > 0) pageHandler.value = profilePage.value;
+    else setTimeout(() => { pageHandler.value = 0 }, 500)
+})
 </script>
 
 <template>
@@ -119,13 +43,14 @@ const models = computed(() => {
         <!-- Beranda -->
         <section>
             <PokemonCards id="beranda" v-model:text="models.search['beranda']" name="home-mobile-filter"
-                :label="filterLabel['beranda']" :load="filterLoad['beranda']" :disable-filter="disableFilter"
+                :label="filterLabel['beranda']" :no-detail="noDetail['beranda']" :disable-filter="disableFilter"
                 @open-filter="val => emit('openFilter', val)" @heart="val => emit('handleFavourite', val)"
-                :catched="allCatched" v-model:confirm="models.confirmData['beranda'].confirm"
+                :catched="allCatched" v-model:confirm="models.confirmData['beranda'].confirm" :load="filterLoad['beranda']"
                 :data="filteredPokemon['beranda']" v-model:on-bottom="models.onBottom['beranda']"
                 @open-card="val => emit('openCard', val)" :error="error['beranda']" :refresh-load="refreshLoad['beranda']"
                 @refresh="emit('refresh')" @confirm="({ index }) => emit('cardConfirm', { index, name: 'beranda' })"
-                :heart="filteredFavourite['beranda']" v-model:loadmore="models.filter['beranda'].next" />
+                :heart="filteredFavourite['beranda']" v-model:loadmore="models.filter['beranda'].next"
+                :error-more="errorMore['beranda']" @loadmore="emit('loadmore')" />
         </section>
         <!-- Wilayah -->
         <section>
@@ -145,8 +70,9 @@ const models = computed(() => {
                         v-model:confirm="models.confirmData['wilayah'].confirm" @heart="val => emit('handleFavourite', val)"
                         v-model:on-bottom="models.onBottom['wilayah']" @open-card="val => emit('openCard', val)"
                         @confirm="({ index }) => emit('cardConfirm', { index, name: 'wilayah' })"
-                        :refresh-load="refreshLoad['wilayah']" @refresh="emit('refresh')" :data="filteredPokemon['wilayah']"
-                        v-model:loadmore="models.filter['wilayah'].next" />
+                        :no-detail="noDetail['wilayah']" :refresh-load="refreshLoad['wilayah']" @refresh="emit('refresh')"
+                        :data="filteredPokemon['wilayah']" v-model:loadmore="models.filter['wilayah'].next"
+                        :error-more="errorMore['wilayah']" @loadmore="emit('loadmore')" />
                 </div>
             </div>
         </section>
@@ -156,25 +82,30 @@ const models = computed(() => {
                 :page-name="{ text: 'Favorit', icon: ArrowLeft }" :label="filterLabel['favorit']"
                 :load="filterLoad['favorit']" :disable-filter="disableFilter" @open-filter="val => emit('openFilter', val)"
                 :data="filteredPokemon['favorit']" @open-card="val => emit('openCard', val)"
-                :refresh-load="refreshLoad['favorit']" @refresh="emit('refresh')"
+                :refresh-load="refreshLoad['favorit']" @refresh="emit('refresh')" :no-detail="noDetail['favorit']"
                 v-model:loadmore="models.filter['favorit'].next" :actions="cardActions" :error="error['favorit']"
                 @action="val => emit('unFavourite', val)" v-model:on-bottom="models.onBottom['favorit']"
-                v-model:slide="models.cardSlideState['favorit']" />
+                v-model:slide="models.cardSlideState['favorit']" :error-more="errorMore['favorit']"
+                @loadmore="emit('loadmore')" />
         </section>
         <!-- Profil -->
         <section class="bg-gray-200">
-            <div class="bg-white p-4 flex items-center gap-6 flex-col xx:flex-row">
-                <div class="min-w-[7rem] h-28 rounded-full bg-red-300"></div>
-                <div class="w-full h-full text-slate-800">
-                    <b class="font-bold text-xl">Selamat Datang!</b>
-                    <p class="font-semibold text-lg mt-2">Fajar Maulana</p>
-                    <em class="text-xs">m.fajars.net@gmail.com</em>
-                </div>
-            </div>
+            <MobileProfile :is-login="isLogin" :data="user" @sign="emit('sign')" @open="val => emit('openMenu', val)" />
         </section>
     </div>
     <!-- Footer -->
     <Footer :is-login="isLogin" @pokedex="emit('update:pokedex', true)" @login="emit('sign')" />
+    <!-- Profile Page -->
+    <aside class="fixed h-screen w-full top-0 right-0 transition duration-500 bg-white p-4"
+        :style="{ transform: `translateX(${profilePage > 0 ? 0 : -100}%)` }">
+        <Preference v-if="pageHandler == 2" :model-value="prefer" @update:model-value="val => emit('update:prefer', val)"
+            :err-net="profileError.prefer" :temp="preferTemp" @save="val => emit('savePrefer', val)"
+            @back="emit('backProfile')" :load="profileLoad.prefer" @file="val => emit('profileImage', val)" />
+        <Password v-if="pageHandler == 3" @back="emit('backProfile')" :err-net="profileError.password"
+            :wrong="passwordWrong" @update:wrong="val => emit('update:passwordWrong', val)" :load="profileLoad.password"
+            :data="password" :page="passwordPage" @post="val => emit('postPass', val)"
+            @update:page="val => emit('update:passwordPage', val)" @update:data="val => emit('update:password', val)" />
+    </aside>
     <!-- Pokedex -->
     <section class="pokedex fixed overflow-auto h-screen w-full top-0 bg-white transition duration-500"
         :style="{ transform: `translateY(${pokedex ? '0' : '100'}%)` }">
@@ -185,7 +116,8 @@ const models = computed(() => {
             @action="val => emit('unCatch', val)" @open-card="val => emit('openCard', val)" :error="error['pokedex']"
             v-model:loadmore="models.filter['pokedex'].next" v-model:on-bottom="models.onBottom['pokedex']"
             v-model:slide="models.cardSlideState['pokedex']" :refresh-load="refreshLoad['pokedex']"
-            @refresh="emit('refresh')" />
+            @refresh="emit('refresh')" :no-detail="noDetail['pokedex']" :error-more="errorMore['pokedex']"
+            @loadmore="emit('loadmore')" />
     </section>
 </template>
 

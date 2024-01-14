@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { FastArrowRight, HomeSimpleDoor, ProfileCircle, Edit, ShieldQuestion, KeyMinus, GoogleDocs, LogOut, LogIn } from "iconoir-vue/regular";
+import { FastArrowRight, HomeSimpleDoor, ProfileCircle, Edit, ShieldQuestion, KeyMinus, GoogleDocs, HelpCircle, LogOut, LogIn } from "iconoir-vue/regular";
 import { ref, toRefs } from "@vue/reactivity";
 import type { PropType } from "vue";
 import { imageSource, extractName } from ".";
 
-const emit = defineEmits(['sign'])
+const emit = defineEmits(['sign', 'update:modelValue'])
 const props = defineProps({
     data: {
         type: Object as PropType<{ name: string, email: string, image: string }>,
@@ -13,28 +13,32 @@ const props = defineProps({
     isLogin: {
         type: Boolean as PropType<boolean>,
         default: true
+    },
+    modelValue: {
+        type: Number as PropType<number>,
+        default: 0
     }
 })
 
-const { data, isLogin } = toRefs(props)
-const page = ref(0)
+const { data, isLogin, modelValue } = toRefs(props)
 const isExpanded = ref(false)
 
 const menus = [
-    { name: 'beranda', icon: HomeSimpleDoor },
-    { name: 'profil', icon: ProfileCircle },
-    { name: 'ubah data profil', icon: Edit },
-    { name: 'ubah kata sandi', icon: KeyMinus },
-    { name: 'syarat dan ketentuan', icon: GoogleDocs },
-    { name: 'kebijakan privasi', icon: ShieldQuestion },
+    { name: 'Beranda', icon: HomeSimpleDoor },
+    { name: 'Lihat Profil', icon: ProfileCircle },
+    { name: 'Ubah Data Profil', icon: Edit },
+    { name: 'Ubah Kata Sandi', icon: KeyMinus },
+    { name: 'Bantuan', icon: HelpCircle },
+    { name: 'Syarat dan Ketentuan', icon: GoogleDocs },
+    { name: 'Kebijakan Privasi', icon: ShieldQuestion },
 ]
 
 const menuStyle = (idx: number) => {
     let isActive = false
-    if (idx >= 0 && page.value == idx) isActive = true
+    if (idx >= 0 && modelValue.value == idx) isActive = true
     return `${isActive ? '[&>*]:stroke-slate-900' : '[&>*]:stroke-slate-800/80 group-hover:[&>*]:stroke-slate-900/90 group-active:[&>*]:stroke-slate-900'} [&>*]:transition [&>*]:duration-300`
 }
-const textStyle = (idx: number) => page.value == idx ? 'text-slate-800' : 'text-slate-800/80 group-hover:text-slate-800/90 group-active:text-slate-800'
+const textStyle = (idx: number) => modelValue.value == idx ? 'text-slate-800' : 'text-slate-800/80 group-hover:text-slate-800/90 group-active:text-slate-800'
 </script>
 
 <template>
@@ -72,20 +76,20 @@ const textStyle = (idx: number) => page.value == idx ? 'text-slate-800' : 'text-
                 <div :class="isExpanded ? 'h-[calc(100vh-15.5rem)]' : 'h-[calc(100vh-8.5rem)]'"
                     class="flex w-full flex-col items-center justify-between mt-2 gap-3">
                     <div class="filter w-full flex flex-col items-center overflow-y-auto h-full relative">
-                        <span :style="{ top: `${page * 4}rem` }" style="transition: top .5s;"
+                        <span :style="{ top: `${modelValue * 4}rem` }" style="transition: top .5s;"
                             class="w-full h-16 bg-slate-50 absolute rounded-l-3xl">
                             <span v-for="i in 2" class="w-4 h-4 bg-slate-50 absolute right-0 first:-top-4 last:-bottom-4">
                                 <span :class="i == 1 ? 'rounded-br-full' : 'rounded-tr-full'"
                                     class="w-4 h-4 bg-rose-200 absolute top-0"></span>
                             </span>
                         </span>
-                        <span v-for="menu, idx in menus" @click="page = idx"
+                        <span v-for="menu, idx in menus" @click="emit('update:modelValue', idx)"
                             class="group w-full min-h-[4rem] flex items-center gap-4 px-[18px] relative cursor-pointer overflow-hidden">
                             <i class="min-w-[28px]">
                                 <component :is="menu.icon" class="w-7 h-7 [&>*]:stroke-2" :class="menuStyle(idx)">
                                 </component>
                             </i>
-                            <span class="font-semibold capitalize whitespace-nowrap overflow-hidden transition duration-500"
+                            <span class="font-semibold whitespace-nowrap overflow-hidden transition duration-500"
                                 :class="[isExpanded ? 'opacity-100' : 'opacity-0', textStyle(idx)]">{{ menu.name }}</span>
                         </span>
                     </div>
@@ -104,7 +108,7 @@ const textStyle = (idx: number) => page.value == idx ? 'text-slate-800' : 'text-
             </div>
         </div>
         <div class="h-full min-w-[calc(100%-4rem)] transition duration-500 [&>*]:p-5 [&>*]:h-full"
-            :style="{ transform: `translateY(-${page * 100}%)` }">
+            :style="{ transform: `translateY(-${modelValue * 100}%)` }">
             <slot v-for="menu, idx in menus" :name="idx.toString()"></slot>
         </div>
     </div>

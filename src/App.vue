@@ -41,6 +41,7 @@ input::-webkit-inner-spin-button {
 }
 
 input[type=text],
+input[type=password],
 textarea {
   caret-color: rgb(30, 41, 59) !important;
   -webkit-box-shadow: 0 0 0 30px #FFFFFF inset !important;
@@ -52,6 +53,7 @@ textarea {
 }
 
 input[type=text]::placeholder,
+input[type=password]::placeholder,
 textarea {
   color: rgb(30, 41, 59);
   opacity: .75;
