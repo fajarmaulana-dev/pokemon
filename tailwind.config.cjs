@@ -16,6 +16,7 @@ module.exports = {
       ],
     },
   ],
+  content: ['./public/**/*.html', './src/**/*.{ts,vue}'],
   theme: {
     extend: {
       colors: {

@@ -114,10 +114,12 @@ const disableBtn = (key: string[] = ['new', 'confirm']) => {
                             <Field v-slot="{ field, errorMessage }" name="current">
                                 <TextBox full-text :append-icon="onEye()" :readonly="load"
                                     :placeholder="placeholder.current" :model-value="model.password.current" :="field"
-                                    :for-password="model.hide.current" :invalid="wrong || reErr(errorMessage) !== undefined"
-                                    :prepend-icon="KeyMinus" @append-click="onHide()" @on-enter="submit.click()"
+                                    :for-password="model.hide.current"
+                                    :invalid="wrong || reErr(errorMessage) !== undefined" :prepend-icon="KeyMinus"
+                                    @append-click="onHide()" @on-enter="submit.click()"
                                     @update:model-value="val => { onModel(val), emit('update:wrong', false) }" />
-                                <p id="error-current">{{ wrong ? 'sandi yang kamu masukkan salah' : reErr(errorMessage) }}
+                                <p id="error-current">{{ wrong ? 'sandi yang kamu masukkan salah' : reErr(errorMessage)
+                                    }}
                                 </p>
                             </Field>
                         </fieldset>
@@ -134,7 +136,8 @@ const disableBtn = (key: string[] = ['new', 'confirm']) => {
                                         :prepend-icon="KeyMinus" :readonly="load" :="field" @on-enter="submit.click()"
                                         :invalid="(box == 'confirm' ? invalid : false) || reErr(errorMessage, box) !== undefined"
                                         @update:model-value="val => onModel(val, box)" @append-click="onHide(box)" />
-                                    <p :id="`error-${box}`">{{ box == 'confirm' ? invalidText : reErr(errorMessage, box) }}
+                                    <p :id="`error-${box}`">{{ box == 'confirm' ? invalidText : reErr(errorMessage, box)
+                                        }}
                                     </p>
                                 </Field>
                             </div>

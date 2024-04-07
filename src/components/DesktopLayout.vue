@@ -25,8 +25,7 @@ const isExpanded = ref(false)
 
 const menus = [
     { name: 'Beranda', icon: HomeSimpleDoor },
-    { name: 'Lihat Profil', icon: ProfileCircle },
-    { name: 'Ubah Data Profil', icon: Edit },
+    { name: 'Ubah Preferensi', icon: Edit },
     { name: 'Ubah Kata Sandi', icon: KeyMinus },
     { name: 'Bantuan', icon: HelpCircle },
     { name: 'Syarat dan Ketentuan', icon: GoogleDocs },
@@ -49,7 +48,8 @@ const textStyle = (idx: number) => modelValue.value == idx ? 'text-slate-800' : 
                 <div :class="isExpanded ? 'w-24 h-24 mt-6 min-h-[6rem]' : 'w-12 h-12 mt-4 min-h-0'"
                     style="transition: width .5s, min-width .5s, height .5s;"
                     class="rounded-full overflow-hidden bg-white shadow-[0_0_6px_1px] shadow-rose-300/70">
-                    <img v-if="!isLogin" src="@/assets/paldea-02.avif" width="96" height="96" alt="Is Logged Out Image" />
+                    <img v-if="!isLogin" src="@/assets/paldea-02.avif" width="96" height="96"
+                        alt="Is Logged Out Image" />
                     <span v-else-if="isLogin && data.image == ''" :class="isExpanded ? 'text-4xl' : 'text-lg'"
                         class="h-full w-full grid place-items-center font-bold text-rose-300 tracking-wider transition duration-500">
                         {{ extractName(data.name) }}</span>
@@ -78,7 +78,8 @@ const textStyle = (idx: number) => modelValue.value == idx ? 'text-slate-800' : 
                     <div class="filter w-full flex flex-col items-center overflow-y-auto h-full relative">
                         <span :style="{ top: `${modelValue * 4}rem` }" style="transition: top .5s;"
                             class="w-full h-16 bg-slate-50 absolute rounded-l-3xl">
-                            <span v-for="i in 2" class="w-4 h-4 bg-slate-50 absolute right-0 first:-top-4 last:-bottom-4">
+                            <span v-for="i in 2"
+                                class="w-4 h-4 bg-slate-50 absolute right-0 first:-top-4 last:-bottom-4">
                                 <span :class="i == 1 ? 'rounded-br-full' : 'rounded-tr-full'"
                                     class="w-4 h-4 bg-rose-200 absolute top-0"></span>
                             </span>
@@ -90,7 +91,8 @@ const textStyle = (idx: number) => modelValue.value == idx ? 'text-slate-800' : 
                                 </component>
                             </i>
                             <span class="font-semibold whitespace-nowrap overflow-hidden transition duration-500"
-                                :class="[isExpanded ? 'opacity-100' : 'opacity-0', textStyle(idx)]">{{ menu.name }}</span>
+                                :class="[isExpanded ? 'opacity-100' : 'opacity-0', textStyle(idx)]">{{ menu.name
+                                }}</span>
                         </span>
                     </div>
                     <span @click="emit('sign')" class="group w-full min-h-[4rem] flex items-center gap-4 px-[18px] cursor-pointer

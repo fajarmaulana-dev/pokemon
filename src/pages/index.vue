@@ -11,7 +11,7 @@ import { storeToRefs } from 'pinia';
 import { ArrowLeft } from "iconoir-vue/regular";
 import { Trash } from "iconoir-vue/solid";
 import Modal from "~/Modal.vue"
-import type { PokemonCard, Pokemon, Favourite, Filter, Preference } from "@/types";
+import type { PokemonCard, Pokemon, Favourite, Filter, Preference, MyPokemon, Names } from "@/types";
 import debounce from 'lodash.debounce';
 import { doFilter, initData, getPokeDetail } from "~/Func/data";
 import Local from "../api/local"
@@ -186,31 +186,31 @@ watch(refreshed, () => { setLocalData(favourites.value, myPokemon.value, favouri
 const err_network = ref(false)
 
 const fetch_init = async () => {
-    // err_network.value = false
-    // let favourite = Local.getData('poke-love') as Favourite[] || []
-    // let pokedexes = Local.getData('poke-dex') as MyPokemon[] || []
-    // let favouriteTypes = Local.getData('type-love') as Record<string, number> || favouriteType.value
-    // let pokedexesType = Local.getData('type-dex') as Record<string, number> || myPokemonType.value
-    
-    // const initNeeds = { regions: Object.keys(regions.value), types: Object.keys(types.value), favourite, catched: pokedexes }
+    err_network.value = false
+    let favourite = Local.getData('poke-love') as Favourite[] || []
+    let pokedexes = Local.getData('poke-dex') as MyPokemon[] || []
+    let favouriteTypes = Local.getData('type-love') as Record<string, number> || favouriteType.value
+    let pokedexesType = Local.getData('type-dex') as Record<string, number> || myPokemonType.value
+
+    const initNeeds = { regions: Object.keys(regions.value), types: Object.keys(types.value), favourite, catched: pokedexes }
     try {
-        // const { data, names, spreads, variants, favouriteData, mineData, genders } = await initData(initNeeds)
-        // if (favourite.length == 0) favourite = names.map((p: Names) => { return { id: p.id, state: false, date: '' } })
-        // store.$patch({ favourites: favourite, favouriteType: favouriteTypes, myPokemon: pokedexes, myPokemonType: pokedexesType, names, regions: spreads, types: variants, genders })
+        const { data, names, spreads, variants, favouriteData, mineData, genders } = await initData(initNeeds)
+        if (favourite.length == 0) favourite = names.map((p: Names) => { return { id: p.id, state: false, date: '' } })
+        store.$patch({ favourites: favourite, favouriteType: favouriteTypes, myPokemon: pokedexes, myPokemonType: pokedexesType, names, regions: spreads, types: variants, genders })
         setTimeout(() => {
-            // filteredPokemon['beranda'] = data
-            // filteredFavourite['beranda'] = favourite.slice(0, 20)
-            // availableType['beranda'] = Object.keys(types.value)
-            // filteredPokemon['wilayah'] = data
-            // availableType['wilayah'] = Object.keys(types.value)
-            // filteredPokemon['pokedex'] = mineData
-            // filteredFavourite['pokedex'] = favourite.filter((data) => mineData.map((d) => d.id).includes(data.id))
-            // availableType['pokedex'] = filterType(mineData)
-            // filteredPokemon['favorit'] = favouriteData
-            // filteredFavourite['favorit'] = favourite.filter((data) => data.state)
-            // availableType['favorit'] = filterType(favouriteData)
-            // cardSlideState['favorit'] = favouriteData.map((_, i) => false)
-            // cardSlideState['pokedex'] = mineData.map((_, i) => false)
+            filteredPokemon['beranda'] = data
+            filteredFavourite['beranda'] = favourite.slice(0, 20)
+            availableType['beranda'] = Object.keys(types.value)
+            filteredPokemon['wilayah'] = data
+            availableType['wilayah'] = Object.keys(types.value)
+            filteredPokemon['pokedex'] = mineData
+            filteredFavourite['pokedex'] = favourite.filter((data) => mineData.map((d) => d.id).includes(data.id))
+            availableType['pokedex'] = filterType(mineData)
+            filteredPokemon['favorit'] = favouriteData
+            filteredFavourite['favorit'] = favourite.filter((data) => data.state)
+            availableType['favorit'] = filterType(favouriteData)
+            cardSlideState['favorit'] = favouriteData.map((_, i) => false)
+            cardSlideState['pokedex'] = mineData.map((_, i) => false)
             hideSplash.value = true
             overflowHandler('auto')
         }, 1000)
@@ -224,14 +224,14 @@ onMounted(async () => {
     window.addEventListener('beforeunload', () => {
         refreshed.value = true;
     })
-    
+
     screenWidth.value = window.innerWidth;
     screenHeight.value = window.innerHeight;
     window.addEventListener('resize', () => {
         screenWidth.value = window.innerWidth;
         screenHeight.value = window.innerHeight;
     })
-    
+
     history.pushState('fake', '', document.URL)
     window.onpopstate = () => {
         history.pushState('fake', '', document.URL)

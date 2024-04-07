@@ -6,6 +6,9 @@ import DesktopLayout from "./DesktopLayout.vue";
 import DesktopProfileLayout from "./Profile/DesktopProfileLayout.vue";
 import Preference from "./Profile/Preference.vue";
 import Password from "./Profile/Password.vue";
+import Help from "./Profile/Help.vue";
+import Term from "./Profile/Term.vue";
+import Privacy from "./Profile/Privacy.vue";
 import { storeToRefs } from 'pinia';
 import { ArrowLeft, Pokeball, Heart } from "iconoir-vue/regular";
 import { toTop, mainProps } from "./Func/method";
@@ -98,9 +101,10 @@ const types = computed(() => ['', ...models.value.availableType[forPokedex.value
                             <PokemonCards :id="name" v-model:text="models.search[name]" :name="`${name}-desktop-filter`"
                                 :page-name="{ text: name[0].toUpperCase() + name.slice(1, name.length), icon: ArrowLeft }"
                                 :disable-filter="disableFilter" :error-more="errorMore[name]" :label="filterLabel[name]"
-                                @hover="handleDeskDex(name)" @open-filter="val => emit('openFilter', val)" :types="types"
-                                :data="filteredPokemon[name]" @open-card="val => emit('openCard', val)" :error="error[name]"
-                                v-model:loadmore="models.filter[name].next" :actions="cardActions" :load="filterLoad[name]"
+                                @hover="handleDeskDex(name)" @open-filter="val => emit('openFilter', val)"
+                                :types="types" :data="filteredPokemon[name]" @open-card="val => emit('openCard', val)"
+                                :error="error[name]" v-model:loadmore="models.filter[name].next" :actions="cardActions"
+                                :load="filterLoad[name]"
                                 @action="val => { i == 0 ? emit('unCatch', val) : emit('unFavourite', val) }"
                                 v-model:on-bottom="models.onBottom[name]" v-model:slide="models.cardSlideState[name]"
                                 @choose-filter="({ filter, item }) => emit('chooseFilter', { is: filter, item })"
@@ -117,19 +121,13 @@ const types = computed(() => ['', ...models.value.availableType[forPokedex.value
             </div>
         </template>
         <template #1>
-            <div>
-                <div class="bg-white rounded-2xl h-full w-full shadow-[0_0_10px_2px] shadow-gray-200/40 overflow-y-auto">
-                </div>
-            </div>
-        </template>
-        <template #2>
             <DesktopProfileLayout image="hisui">
                 <Preference :model-value="prefer" @update:model-value="val => emit('update:prefer', val)"
                     :err-net="profileError.prefer" :temp="preferTemp" @save="val => emit('savePrefer', val)"
                     :load="profileLoad.prefer" @file="val => emit('profileImage', val)" />
             </DesktopProfileLayout>
         </template>
-        <template #3>
+        <template #2>
             <DesktopProfileLayout image="paldea">
                 <Password :err-net="profileError.password" :load="profileLoad.password" :data="password"
                     :page="passwordPage" :wrong="passwordWrong" @update:wrong="val => emit('update:passwordWrong', val)"
@@ -137,11 +135,20 @@ const types = computed(() => ['', ...models.value.availableType[forPokedex.value
                     @update:data="val => emit('update:password', val)" />
             </DesktopProfileLayout>
         </template>
+        <template #3>
+            <DesktopProfileLayout image="kanto">
+                <Help />
+            </DesktopProfileLayout>
+        </template>
         <template #4>
-            <div class="w-full h-full bg-blue-500"></div>
+            <DesktopProfileLayout image="unova">
+                <Term />
+            </DesktopProfileLayout>
         </template>
         <template #5>
-            <div class="w-full h-full bg-fuchsia-500"></div>
+            <DesktopProfileLayout image="sinnoh">
+                <Privacy />
+            </DesktopProfileLayout>
         </template>
     </DesktopLayout>
 </template>

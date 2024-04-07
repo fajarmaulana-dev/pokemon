@@ -21,8 +21,7 @@ const { isLogin, data } = toRefs(props)
 
 const menus: Record<string, { name: string, icon: (props: SVGAttributes) => any }[]> = {
     'Akun dan Keamanan': [
-        { name: 'Lihat Profil', icon: ProfileCircle },
-        { name: 'Ubah Data Profil', icon: Edit },
+        { name: 'Ubah Preferensi', icon: Edit },
         { name: 'Ubah Kata Sandi', icon: KeyMinus },
     ],
     'Panduan Penggunaan': [
@@ -68,9 +67,9 @@ const rippleEnd = (branch: string, index: number, k: number) => ripples.value[br
     </div>
     <div v-for="part, mdx in Object.keys(menus)" class="bg-white mt-[5px] pt-4 [&>*]:px-4">
         <p class="font-bold pb-1 text-slate-800">{{ part }}</p>
-        <div v-for="menu, idx in menus[part]" @click="emit('open', index(mdx, idx))" :ref="e => { ripple[part][idx] = e }"
-            @touchstart.passive="animateRipple($event, part, idx, true)" @mousedown="animateRipple($event, part, idx)"
-            class="bg-white text-slate-700 hover:bg-slate-100/50 transition duration-300 py-3.5 flex items-center
+        <div v-for="menu, idx in menus[part]" @click="emit('open', index(mdx, idx))"
+            :ref="e => { ripple[part][idx] = e }" @touchstart.passive="animateRipple($event, part, idx, true)"
+            @mousedown="animateRipple($event, part, idx)" class="bg-white text-slate-700 hover:bg-slate-100/50 transition duration-300 py-3.5 flex items-center
             justify-between cursor-pointer relative overflow-hidden">
             <div class="text-[.9rem] font-semibold flex items-center gap-2 relative z-[1]">
                 <component :is="menu.icon" class="w-5 h-5 stroke-[2.5]"></component>
@@ -78,7 +77,8 @@ const rippleEnd = (branch: string, index: number, k: number) => ripples.value[br
             </div>
             <NavArrowRight class="w-5 h-5 stroke-[2.5] relative z-[1]" />
             <Ripple v-model="ripples[part][idx]" @ripple-end="k => rippleEnd(part, idx, k)" color="slate-300/80" />
-            <hr v-if="idx < menus[part].length - 1" class="absolute inset-x-4 bottom-0 rounded-[1px] h-0.5 bg-gray-200" />
+            <hr v-if="idx < menus[part].length - 1"
+                class="absolute inset-x-4 bottom-0 rounded-[1px] h-0.5 bg-gray-200" />
         </div>
     </div>
     <div class="bg-white mt-[5px] text-fill-1" @click="emit('sign')">

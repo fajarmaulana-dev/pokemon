@@ -129,7 +129,7 @@ const resetImage = () => {
                         bg-fill-0/0 hover:bg-fill-0/30 active:bg-fill-0/50 transition duration-[.4s] -translate-x-1">
                         <ArrowLeft class="h-[15px] w-[15px] text-fill-1 stroke-[4]" />
                     </i>
-                    <b class="font-bold text-fill-1 text-[1.15rem] xx:text-xl">Preferensi</b>
+                    <b class="font-bold text-fill-1 text-[1.15rem] xx:text-xl">Ubah Preferensi</b>
                 </div>
                 <button class="h-9 font-semibold grid place-items-center rounded-[18px] bg-rose-200 text-slate-800
                     hover:bg-rose-300/75 active:bg-rose-300/95 transition duration-300 px-4" :class="btnStyle"
@@ -170,7 +170,8 @@ const resetImage = () => {
                     </div>
                     <b>Pengubahan Foto Profil Gagal</b>
                     <p>Ukuran foto profil maksimum yang diterima adalah 500 KB, tapi kamu mencoba mengunggah foto dengan
-                        ukuran ≈{{ image.size }} KB. Silakan gunakan foto lain dengan ukuran yang lebih kecil atau lakukan
+                        ukuran ≈{{ image.size }} KB. Silakan gunakan foto lain dengan ukuran yang lebih kecil atau
+                        lakukan
                         kompresi foto terlebih dahulu.</p>
                 </div>
                 <TextBox full-text class="max-w-lg mt-2.5" :prepend-icon="User" :readonly="load"
