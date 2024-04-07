@@ -32,6 +32,20 @@ export default defineConfig({
               },
             },
           },
+          {
+            urlPattern: /^https:\/\/raw\.githubusercontent\.com\/.*/i,
+            handler: 'CacheFirst' as const,
+            options: {
+              cacheName: 'poke-img-cache',
+              expiration: {
+                maxEntries: 500,
+                maxAgeSeconds: 60 * 60 * 24 * 365 * 2, // 2 years
+              },
+              cacheableResponse: {
+                statuses: [0, 200],
+              },
+            },
+          },
         ],
         cleanupOutdatedCaches: true,
         globPatterns: ['**/*.{js,ts,css,html,ico,png,svg,json,vue,txt,ttf,woff2,avif,pdf}'],

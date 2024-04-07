@@ -16,7 +16,8 @@ const { error } = toRefs(props)
 <template>
     <div id="domsplash"
         class="w-full h-screen top-0 flex justify-center items-center fixed bg-white transition duration-500 z-[10]">
-        <div v-if="error" class="h-fit flex flex-col gap-4 max-w-[500px] w-[70vw] py-6 items-center overflow-y-auto filter">
+        <div v-if="error"
+            class="h-fit flex flex-col gap-4 max-w-[500px] w-[70vw] py-6 items-center overflow-y-auto filter">
             <img src="@/assets/denied.avif" width="300" height="110" class="w-[50vw] max-w-[300px]" alt="no signal" />
             <b class="text-slate-800 font-medium text-center text-sm sm:text-base">
                 Kamu sedang tidak terhubung ke internet. Pastikan dulu bahwa kamu memiliki koneksi internet yang stabil.
@@ -28,6 +29,7 @@ const { error } = toRefs(props)
                     {{ text }}</button>
             </div>
         </div>
-        <img v-else src="@/assets/logo.svg" width="500" height="184" class="w-[70vw] max-w-[500px]" alt="logo" />
+        <img v-else src="@/assets/logo.svg" fetchpriority="high" loading="eager" width="500" height="184"
+            class="w-[70vw] max-w-[500px]" alt="logo" />
     </div>
 </template>

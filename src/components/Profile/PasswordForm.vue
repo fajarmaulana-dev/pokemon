@@ -51,7 +51,7 @@ const reDirty = (dirty: boolean) => meta.value.state ? meta.value.data || invali
 
 <template>
     <Form :id="id" @submit="false" :validation-schema="data.schema" v-slot="{ meta }">
-        <h4>Ubah Kata Sandi</h4>
+        <b>Ubah Kata Sandi</b>
         <span>{{ data.intro }}</span>
         <ErrorNetwork :error="errNet" class="mt-3.5" :data="data.alert" />
         <slot :submit="submit"></slot>
